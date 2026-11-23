@@ -1,0 +1,1680 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Puppy Miner — Telegram Mini App</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            tg: {
+              bg: '#0D1117',
+              card: '#161B22',
+              border: '#262D38',
+              gold: '#F59E0B',
+              cyan: '#06B6D4',
+              emerald: '#10B981',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * {
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    body {
+      background-color: #07090D;
+      color: #F3F4F6;
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* Custom Scrollbar for inner content */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    /* Glassmorphism & Glows */
+    .glass-card {
+      background: rgba(22, 27, 34, 0.78);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .gold-glow {
+      box-shadow: 0 0 35px rgba(245, 158, 11, 0.25), inset 0 0 20px rgba(245, 158, 11, 0.15);
+    }
+
+    .cyan-glow {
+      box-shadow: 0 0 25px rgba(6, 182, 212, 0.22);
+    }
+
+    /* Mining Core Pulse & Tap Physics */
+    @keyframes pulseRing {
+      0% { transform: scale(0.96); opacity: 0.6; }
+      50% { transform: scale(1.04); opacity: 0.25; }
+      100% { transform: scale(0.96); opacity: 0.6; }
+    }
+
+    @keyframes spinSlow {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes floatUp {
+      0% {
+        opacity: 1;
+        transform: translateY(0) scale(0.9);
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(-95px) scale(1.25);
+      }
+    }
+
+    .animate-pulse-ring {
+      animation: pulseRing 3s ease-in-out infinite;
+    }
+
+    .animate-spin-slow {
+      animation: spinSlow 18s linear infinite;
+    }
+
+    .mining-core {
+      transition: transform 0.08s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.15s ease;
+    }
+
+    .mining-core:active {
+      transform: scale(0.93);
+    }
+
+    .floating-number {
+      position: fixed;
+      pointer-events: none;
+      font-weight: 800;
+      font-size: 1.45rem;
+      color: #FBBF24;
+      text-shadow: 0 2px 12px rgba(245, 158, 11, 0.75);
+      animation: floatUp 0.85s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      z-index: 60;
+    }
+
+    /* Tab Transition */
+    .tab-pane {
+      display: none;
+      animation: fadeSlide 0.22s ease-out;
+    }
+    .tab-pane.active {
+      display: block;
+    }
+
+    @keyframes fadeSlide {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex justify-center bg-[#06080B]">
+
+  <!-- Mobile App Shell (Telegram Mini App Viewport ~430px) -->
+  <div class="w-full max-w-[430px] min-h-screen bg-[#0D1117] relative flex flex-col shadow-2xl border-x border-white/5 overflow-hidden">
+
+    <!-- Ambient Background Glows -->
+    <div class="pointer-events-none absolute -top-24 left-1/2 -translate-x-1/2 w-80 h-80 rounded-full bg-amber-500/10 blur-[90px]"></div>
+    <div class="pointer-events-none absolute top-1/2 -right-24 w-64 h-64 rounded-full bg-cyan-500/10 blur-[90px]"></div>
+
+    <!-- Top Telegram Mini App Header -->
+    <header class="sticky top-0 z-30 px-4 pt-3 pb-2.5 bg-[#0D1117]/85 backdrop-blur-md border-b border-white/5 flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <div class="relative">
+          <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-amber-500 via-yellow-400 to-cyan-400 p-[2px]">
+            <div class="w-full h-full rounded-full bg-[#161B22] flex items-center justify-center font-bold text-sm text-amber-400">
+              🐶
+            </div>
+          </div>
+          <span class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-400 ring-2 ring-[#0D1117]"></span>
+        </div>
+        <div>
+          <div class="flex items-center gap-1.5">
+            <span class="text-sm font-bold text-white tracking-tight">@puppy_miner</span>
+            <span class="px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-md bg-amber-500/15 text-amber-400 border border-amber-500/30">
+              PRO
+            </span>
+          </div>
+          <div class="flex items-center gap-1 text-[11px] text-slate-400">
+            <span class="text-amber-400">🏆</span>
+            <span id="header-rank" data-i18n="gold_league">Gold Miner • Lvl 4</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Language Pill + Network Status -->
+      <div class="flex items-center gap-2">
+        <button id="header-lang-btn" onclick="toggleLanguage()" class="px-2.5 py-1 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-[11px] font-semibold text-cyan-300 transition active:scale-95">
+          🌐 <span id="lang-badge">EN</span>
+        </button>
+        <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+          <span class="text-[11px] font-semibold text-emerald-400">TON</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Scrollable Viewport -->
+    <main class="flex-1 overflow-y-auto no-scrollbar px-4 pt-3 pb-28">
+
+      <!-- ========================================================= -->
+      <!-- TAB 1: HOME (MINING DASHBOARD)                            -->
+      <!-- ========================================================= -->
+      <section id="tab-home" class="tab-pane active space-y-4">
+
+        <!-- Total Balance Hero Card -->
+        <div class="glass-card rounded-2xl p-4 text-center relative overflow-hidden">
+          <div class="text-xs font-medium uppercase tracking-widest text-slate-400 mb-1" data-i18n="total_balance">
+            Total Mined Balance
+          </div>
+          <div class="flex items-center justify-center gap-2">
+            <div class="w-7 h-7 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-slate-950 font-black text-xs shadow-lg">
+              🐾
+            </div>
+            <span id="balance-display" class="text-3xl sm:text-4xl font-black tracking-tight text-white font-mono">
+              14,850.00
+            </span>
+            <span class="text-sm font-bold text-amber-400 self-end mb-1">$PUPPY</span>
+          </div>
+          <div class="mt-2 flex items-center justify-center gap-3 text-xs">
+            <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 font-medium border border-emerald-500/20">
+              ⚡ +<span id="passive-rate-label">180</span> $PUPPY/hr
+            </span>
+            <span class="text-slate-400">
+              ≈ $<span id="usd-estimate">29.70</span> USD
+            </span>
+          </div>
+        </div>
+
+        <!-- 24-Hour Cycle Status & Live Speed Multiplier Card -->
+        <div class="glass-card rounded-2xl p-3.5 border border-cyan-500/20 space-y-2.5">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 rounded-xl bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
+                <svg class="w-4 h-4 animate-spin" style="animation-duration: 6s;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div>
+                <div class="flex items-center gap-1.5">
+                  <span id="cycle-status-title" class="text-xs font-bold text-white" data-i18n="cycle_active_title">24h Mining In Progress</span>
+                  <span id="cycle-state-badge" class="px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-400 text-[9px] font-extrabold uppercase">ACTIVE</span>
+                </div>
+                <div class="text-[11px] text-slate-400">
+                  <span data-i18n="session_mined">Session Mined:</span>
+                  <span id="session-mined-label" class="font-mono font-bold text-cyan-300">42.50</span> $PUPPY
+                </div>
+              </div>
+            </div>
+
+            <!-- 24:00:00 Countdown + Demo Fast-Forward Test Pill -->
+            <div class="text-right">
+              <div id="countdown-timer" class="text-sm font-black font-mono text-amber-300 tracking-tight">23:14:08</div>
+              <button onclick="fastForwardCycleDemo()" class="text-[10px] font-semibold text-cyan-400 hover:text-cyan-300 underline" data-i18n="demo_finish_btn">
+                Test End 24h
+              </button>
+            </div>
+          </div>
+
+          <!-- Tap-to-Boost Speed Multiplier Gauge -->
+          <div class="pt-1 border-t border-white/5">
+            <div class="flex items-center justify-between text-[11px] mb-1">
+              <div class="flex items-center gap-1 font-bold text-amber-400">
+                <span>🚀</span>
+                <span data-i18n="speed_boost_label">Tap Speed Multiplier</span>
+              </div>
+              <div class="font-mono font-extrabold text-white">
+                <span id="speed-multiplier-label" class="text-amber-300">1.00x</span>
+                <span class="text-slate-400 text-[10px]">(<span id="effective-rate-label">180</span>/hr)</span>
+              </div>
+            </div>
+            <div class="w-full h-2 rounded-full bg-slate-800/90 overflow-hidden p-[1px]">
+              <div id="speed-boost-bar" class="h-full rounded-full bg-gradient-to-r from-cyan-400 via-amber-400 to-rose-500 transition-all duration-150" style="width: 0%;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SINGLE CENTERPIECE 24-HOUR PUPPY MINING REACTOR -->
+        <div class="relative flex flex-col items-center justify-center py-2">
+          <div class="relative w-60 h-60 flex items-center justify-center">
+            <!-- 24-Hour Circular SVG Progress Ring -->
+            <svg class="absolute inset-0 w-full h-full -rotate-90 pointer-events-none" viewBox="0 0 240 240">
+              <circle cx="120" cy="120" r="108" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="7" />
+              <circle
+                id="cycle-progress-ring"
+                cx="120"
+                cy="120"
+                r="108"
+                fill="none"
+                stroke="url(#puppyRingGrad)"
+                stroke-width="7"
+                stroke-linecap="round"
+                stroke-dasharray="678.58"
+                stroke-dashoffset="655"
+                class="transition-all duration-500"
+              />
+              <defs>
+                <linearGradient id="puppyRingGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#06B6D4" />
+                  <stop offset="50%" stop-color="#F59E0B" />
+                  <stop offset="100%" stop-color="#10B981" />
+                </linearGradient>
+              </defs>
+            </svg>
+
+            <div class="absolute inset-4 rounded-full border border-dashed border-amber-500/25 animate-spin-slow pointer-events-none"></div>
+
+            <!-- Single Interactive Reactor Orb -->
+            <button id="mining-tap-btn" onclick="handleReactorInteraction(event)" class="mining-core relative w-44 h-44 rounded-full bg-gradient-to-b from-[#1E2633] via-[#131820] to-[#0B0E14] border-2 border-amber-400/60 gold-glow flex flex-col items-center justify-center cursor-pointer focus:outline-none">
+              <div class="w-36 h-36 rounded-full bg-gradient-to-tr from-amber-500/20 via-yellow-400/10 to-cyan-400/20 border border-amber-300/30 flex flex-col items-center justify-center px-2 text-center">
+                <span id="reactor-emblem" class="text-4xl drop-shadow-[0_0_12px_rgba(251,191,36,0.75)] mb-1">🐶</span>
+                <span id="reactor-main-label" class="text-xs font-extrabold uppercase tracking-wider text-amber-300" data-i18n="tap_boost_speed">
+                  TAP TO BOOST SPEED
+                </span>
+                <span id="reactor-sub-label" class="text-[11px] font-mono text-slate-300 mt-0.5">
+                  +<span id="tap-power-label">2</span> $PUPPY • <span id="reactor-mult-pill">1.00x</span>
+                </span>
+              </div>
+            </button>
+          </div>
+          <p id="reactor-helper-hint" class="text-[11px] text-slate-400 text-center mt-1" data-i18n="reactor_hint_active">
+            Tap rapidly to boost mining speed! Keeps mining 24h even if you stop.
+          </p>
+        </div>
+
+        <!-- Boosters Grid -->
+        <div class="space-y-3">
+          <div class="grid grid-cols-3 gap-2.5">
+            <button onclick="upgradeBooster('baseSpeed')" class="glass-card hover:bg-white/5 rounded-2xl p-3 text-left transition active:scale-95 border border-white/10">
+              <div class="w-8 h-8 rounded-xl bg-amber-500/15 text-amber-400 flex items-center justify-center text-base mb-2">
+                ⚡
+              </div>
+              <div class="text-xs font-bold text-white" data-i18n="boost_base_speed">Base Speed</div>
+              <div class="text-[10px] text-slate-400">Lvl <span id="lvl-baseSpeed">2</span> • +60/hr</div>
+              <div class="mt-1.5 text-[11px] font-mono font-bold text-amber-400" id="cost-baseSpeed">500 $PUPPY</div>
+            </button>
+
+            <button onclick="upgradeBooster('maxBoost')" class="glass-card hover:bg-white/5 rounded-2xl p-3 text-left transition active:scale-95 border border-white/10">
+              <div class="w-8 h-8 rounded-xl bg-cyan-500/15 text-cyan-400 flex items-center justify-center text-base mb-2">
+                🚀
+              </div>
+              <div class="text-xs font-bold text-white" data-i18n="boost_max_mult">Max Multiplier</div>
+              <div class="text-[10px] text-slate-400">Lvl <span id="lvl-maxBoost">1</span> • +0.5x</div>
+              <div class="mt-1.5 text-[11px] font-mono font-bold text-cyan-400" id="cost-maxBoost">750 $PUPPY</div>
+            </button>
+
+            <button onclick="upgradeBooster('tapBonus')" class="glass-card hover:bg-white/5 rounded-2xl p-3 text-left transition active:scale-95 border border-white/10">
+              <div class="w-8 h-8 rounded-xl bg-emerald-500/15 text-emerald-400 flex items-center justify-center text-base mb-2">
+                🐾
+              </div>
+              <div class="text-xs font-bold text-white" data-i18n="boost_tap_bonus">Tap Bonus</div>
+              <div class="text-[10px] text-slate-400">Lvl <span id="lvl-tapBonus">2</span> • +1/tap</div>
+              <div class="mt-1.5 text-[11px] font-mono font-bold text-emerald-400" id="cost-tapBonus">1,200 $PUPPY</div>
+            </button>
+          </div>
+
+          <!-- Top Miners Leaderboard Section -->
+          <div class="glass-card rounded-2xl p-3.5 border border-amber-500/15 space-y-2.5">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="text-base">🏆</span>
+                <h3 class="text-xs font-extrabold uppercase tracking-wider text-white" data-i18n="leaderboard_title">
+                  Top Miners Leaderboard
+                </h3>
+              </div>
+              <span class="px-2 py-0.5 rounded-full bg-amber-500/15 text-[10px] font-bold text-amber-400 border border-amber-500/30" data-i18n="live_badge">
+                LIVE
+              </span>
+            </div>
+            <div id="leaderboard-list" class="space-y-2">
+              <!-- Populated dynamically via JS -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================================= -->
+      <!-- TAB 2: TASKS (AMA-TASK & ABATUMIWE)                       -->
+      <!-- ========================================================= -->
+      <section id="tab-tasks" class="tab-pane space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-lg font-extrabold text-white" data-i18n="tasks_title">Earn More $PUPPY</h2>
+            <p class="text-xs text-slate-400" data-i18n="tasks_subtitle">Complete daily missions & social tasks for instant rewards.</p>
+          </div>
+          <div class="px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs font-bold text-amber-400">
+            🎯 <span id="tasks-completed-count">1</span>/5
+          </div>
+        </div>
+
+        <!-- Daily Check-In Streak Card -->
+        <div class="glass-card rounded-2xl p-4 border border-amber-500/20">
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center gap-2">
+              <span class="text-lg">🔥</span>
+              <div>
+                <h3 class="text-sm font-bold text-white" data-i18n="daily_checkin">Daily Check-in</h3>
+                <p class="text-[11px] text-slate-400" data-i18n="daily_streak_sub">7-day streak unlocks 5,000 $PUPPY bonus</p>
+              </div>
+            </div>
+            <button id="daily-claim-btn" onclick="claimDailyStreak()" class="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs transition active:scale-95">
+              <span data-i18n="checkin_btn">Claim Day 4</span>
+            </button>
+          </div>
+
+          <div class="grid grid-cols-7 gap-1.5 text-center" id="streak-grid">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+        <!-- Expanded Referrals Hub -->
+        <div class="glass-card rounded-2xl p-4 border border-emerald-500/25 space-y-3">
+          <div class="flex items-center justify-between">
+            <div>
+              <div class="flex items-center gap-1.5">
+                <span class="text-base">🤝</span>
+                <h3 class="text-sm font-extrabold text-white" data-i18n="ref_hub_title">Referrals Hub</h3>
+              </div>
+              <p class="text-[11px] text-slate-400" data-i18n="invite_desc">Get +1,000 $PUPPY + 10% of friends' mining!</p>
+            </div>
+            <button onclick="claimReferralRewards()" id="claim-ref-btn" class="px-2.5 py-1.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-300 font-bold text-[11px] transition active:scale-95">
+              +<span id="unclaimed-ref-amt">450</span> $PUPPY
+            </button>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2.5 text-center">
+            <div class="p-2.5 rounded-xl bg-white/[0.03] border border-white/5">
+              <div class="text-lg font-black text-white font-mono">12</div>
+              <div class="text-[10px] text-slate-400" data-i18n="invited_count">Friends Invited</div>
+            </div>
+            <div class="p-2.5 rounded-xl bg-white/[0.03] border border-white/5">
+              <div class="text-lg font-black text-emerald-400 font-mono" id="total-ref-earned">+3,420</div>
+              <div class="text-[10px] text-slate-400" data-i18n="ref_earnings">Referral Bonus ($PUPPY)</div>
+            </div>
+          </div>
+
+          <!-- Invite Link Copy Box -->
+          <div class="flex items-center gap-2 p-2 rounded-xl bg-[#0D1117] border border-white/10">
+            <input id="tasks-ref-link-input" type="text" readonly value="https://t.me/PuppyMinerBot?start=ref_849201" class="bg-transparent text-[11px] font-mono text-slate-300 flex-1 outline-none px-1" />
+            <button onclick="copyReferralLink('tasks-ref-link-input')" class="px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs transition active:scale-95 shrink-0">
+              <span data-i18n="copy_btn">Copy</span>
+            </button>
+          </div>
+
+          <!-- Recent Invited Friends Mini List -->
+          <div class="space-y-1.5 pt-1">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400" data-i18n="recent_friends">
+              Recently Joined Friends
+            </div>
+            <div class="flex items-center justify-between text-xs p-2 rounded-xl bg-white/[0.02] border border-white/5">
+              <div class="flex items-center gap-2">
+                <span class="w-6 h-6 rounded-full bg-cyan-500/20 text-cyan-300 flex items-center justify-center text-[10px] font-bold">JM</span>
+                <span class="font-semibold text-slate-200">@jean_mukozi</span>
+              </div>
+              <span class="font-mono text-[11px] text-emerald-400 font-bold">+1,180 $PUPPY</span>
+            </div>
+            <div class="flex items-center justify-between text-xs p-2 rounded-xl bg-white/[0.02] border border-white/5">
+              <div class="flex items-center gap-2">
+                <span class="w-6 h-6 rounded-full bg-amber-500/20 text-amber-300 flex items-center justify-center text-[10px] font-bold">AC</span>
+                <span class="font-semibold text-slate-200">@aline_crypto</span>
+              </div>
+              <span class="font-mono text-[11px] text-emerald-400 font-bold">+1,090 $PUPPY</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Social & Partner Tasks List -->
+        <div class="space-y-2.5">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 px-1" data-i18n="social_tasks_header">
+            Social & Community Tasks
+          </h3>
+          <div id="task-list-container" class="space-y-2.5">
+            <!-- Populated dynamically via JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================================= -->
+      <!-- TAB 3: WALLET                                             -->
+      <!-- ========================================================= -->
+      <section id="tab-wallet" class="tab-pane space-y-4">
+        <!-- TON Wallet Connection Banner -->
+        <div class="glass-card rounded-2xl p-4 border border-cyan-500/25 relative overflow-hidden">
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center gap-2.5">
+              <div class="w-10 h-10 rounded-xl bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center text-cyan-400 font-black text-lg">
+                💎
+              </div>
+              <div>
+                <h2 class="text-sm font-bold text-white" data-i18n="wallet_title">TON & Crypto Wallet</h2>
+                <p id="wallet-status-text" class="text-[11px] text-slate-400" data-i18n="wallet_disconnected">
+                  Connect Tonkeeper or Telegram Wallet
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <button id="connect-wallet-btn" onclick="toggleWalletConnection()" class="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 hover:opacity-95 text-slate-950 font-extrabold text-xs tracking-wide shadow-lg shadow-cyan-500/20 transition active:scale-98 flex items-center justify-center gap-2">
+            <span>🔗</span>
+            <span id="connect-wallet-label" data-i18n="connect_ton_btn">Connect TON Wallet</span>
+          </button>
+        </div>
+
+        <!-- Portfolio Breakdown -->
+        <div class="glass-card rounded-2xl p-4 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-slate-400" data-i18n="portfolio_overview">Portfolio Overview</span>
+            <span class="text-xs font-mono text-emerald-400 font-bold">1 $PUPPY = 2.8 RWF</span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2.5">
+            <div class="p-3 rounded-xl bg-white/[0.03] border border-white/5">
+              <div class="text-[11px] text-slate-400" data-i18n="available_bal">Available Balance</div>
+              <div class="text-base font-black font-mono text-white mt-0.5"><span id="wallet-avail-kgl">14,850</span></div>
+              <div class="text-[10px] text-amber-400 font-semibold">$PUPPY</div>
+            </div>
+            <div class="p-3 rounded-xl bg-white/[0.03] border border-white/5">
+              <div class="text-[11px] text-slate-400" data-i18n="staked_bal">Staked / Locked</div>
+              <div class="text-base font-black font-mono text-cyan-300 mt-0.5">5,000</div>
+              <div class="text-[10px] text-emerald-400 font-semibold">+18% APY</div>
+            </div>
+          </div>
+
+          <!-- Withdraw / Swap Quick Actions -->
+          <div class="grid grid-cols-2 gap-2.5 pt-1">
+            <button onclick="openWithdrawModal()" class="py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:opacity-95 text-slate-950 text-xs font-extrabold shadow-lg shadow-amber-500/20 transition active:scale-95">
+              📤 <span data-i18n="withdraw_btn">Withdraw</span>
+            </button>
+            <button onclick="handleWalletAction('swap')" class="py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-bold text-cyan-300 transition active:scale-95">
+              🔄 <span data-i18n="swap_btn">Swap to TON</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Transaction History -->
+        <div class="space-y-2.5">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 px-1" data-i18n="tx_history">
+            Recent Activity
+          </h3>
+          <div id="tx-history-list" class="space-y-2">
+            <!-- Populated dynamically via JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================================= -->
+      <!-- TAB 4: PROFILE                                            -->
+      <!-- ========================================================= -->
+      <section id="tab-profile" class="tab-pane space-y-4">
+        <!-- Miner Identity Card -->
+        <div class="glass-card rounded-2xl p-4 flex items-center gap-3.5">
+          <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-amber-500 via-yellow-400 to-cyan-400 p-[2px] shrink-0">
+            <div class="w-full h-full rounded-2xl bg-[#161B22] flex items-center justify-center text-3xl font-black text-amber-400">
+              🐶
+            </div>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2">
+              <h2 class="text-base font-extrabold text-white truncate">Puppy Miner</h2>
+              <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                Verified
+              </span>
+            </div>
+            <p class="text-xs text-slate-400 font-mono">TG ID: 849201743</p>
+            <!-- Level Progress -->
+            <div class="mt-2">
+              <div class="flex justify-between text-[10px] font-semibold text-slate-300 mb-1">
+                <span>Gold League (Lvl 4)</span>
+                <span>14.8K / 25K</span>
+              </div>
+              <div class="w-full h-1.5 rounded-full bg-slate-800 overflow-hidden">
+                <div class="h-full rounded-full bg-gradient-to-r from-amber-500 to-yellow-300" style="width: 60%;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Referral System Card -->
+        <div class="glass-card rounded-2xl p-4 border border-emerald-500/20 space-y-3">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-sm font-bold text-white" data-i18n="invite_friends">Invite Friends & Earn</h3>
+              <p class="text-[11px] text-slate-400" data-i18n="invite_desc">Get +1,000 $PUPPY + 10% of friends' mining!</p>
+            </div>
+            <span class="text-2xl">🎁</span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2.5 text-center">
+            <div class="p-2.5 rounded-xl bg-white/[0.03] border border-white/5">
+              <div class="text-lg font-black text-white font-mono">12</div>
+              <div class="text-[10px] text-slate-400" data-i18n="invited_count">Friends Invited</div>
+            </div>
+            <div class="p-2.5 rounded-xl bg-white/[0.03] border border-white/5">
+              <div class="text-lg font-black text-emerald-400 font-mono">+3,420</div>
+              <div class="text-[10px] text-slate-400" data-i18n="ref_earnings">Referral Bonus ($PUPPY)</div>
+            </div>
+          </div>
+
+          <!-- Invite Link Copy Box -->
+          <div class="flex items-center gap-2 p-2 rounded-xl bg-[#0D1117] border border-white/10">
+            <input id="ref-link-input" type="text" readonly value="https://t.me/PuppyMinerBot?start=ref_849201" class="bg-transparent text-[11px] font-mono text-slate-300 flex-1 outline-none px-1" />
+            <button onclick="copyReferralLink('ref-link-input')" class="px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs transition active:scale-95 shrink-0">
+              <span data-i18n="copy_btn">Copy</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- App Preferences & Settings -->
+        <div class="glass-card rounded-2xl divide-y divide-white/5">
+          <!-- Language Toggle -->
+          <div class="p-3.5 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <span class="text-base">🌍</span>
+              <div>
+                <div class="text-xs font-bold text-white" data-i18n="setting_lang">Language / Ururimi</div>
+                <div class="text-[11px] text-slate-400">English / Ikinyarwanda</div>
+              </div>
+            </div>
+            <button onclick="toggleLanguage()" class="px-3 py-1.5 rounded-xl bg-cyan-500/15 border border-cyan-500/30 text-xs font-bold text-cyan-300 active:scale-95 transition">
+              <span id="settings-lang-label">English (EN)</span>
+            </button>
+          </div>
+
+          <!-- Haptic Feedback Toggle -->
+          <div class="p-3.5 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <span class="text-base">📳</span>
+              <div>
+                <div class="text-xs font-bold text-white" data-i18n="setting_haptic">Haptic Vibration</div>
+                <div class="text-[11px] text-slate-400" data-i18n="setting_haptic_sub">Vibrate on mining taps</div>
+              </div>
+            </div>
+            <button id="toggle-haptic" onclick="toggleSwitch(this)" class="w-11 h-6 rounded-full bg-emerald-500 p-0.5 transition-colors flex items-center justify-end">
+              <span class="w-5 h-5 rounded-full bg-white shadow"></span>
+            </button>
+          </div>
+
+          <!-- Sound Effects Toggle -->
+          <div class="p-3.5 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <span class="text-base">🔊</span>
+              <div>
+                <div class="text-xs font-bold text-white" data-i18n="setting_sound">Synth Sound Effects</div>
+                <div class="text-[11px] text-slate-400" data-i18n="setting_sound_sub">Audio feedback on tap & claim</div>
+              </div>
+            </div>
+            <button id="toggle-sound" onclick="toggleSwitch(this)" class="w-11 h-6 rounded-full bg-emerald-500 p-0.5 transition-colors flex items-center justify-end">
+              <span class="w-5 h-5 rounded-full bg-white shadow"></span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Interactive Withdraw Modal (TON Wallet & Mobile Money) -->
+    <div id="withdraw-modal" class="fixed inset-0 z-50 hidden items-end sm:items-center justify-center bg-black/75 backdrop-blur-sm p-3">
+      <div class="w-full max-w-[410px] glass-card bg-[#131922] border border-white/15 rounded-3xl p-4 space-y-3.5 shadow-2xl animate-[fadeSlide_0.2s_ease-out]">
+        <div class="flex items-center justify-between border-b border-white/10 pb-2.5">
+          <div class="flex items-center gap-2">
+            <span class="text-lg">💸</span>
+            <h3 class="text-sm font-extrabold text-white" data-i18n="withdraw_modal_title">Withdraw Funds ($PUPPY)</h3>
+          </div>
+          <button onclick="closeWithdrawModal()" class="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 flex items-center justify-center text-xs font-bold">
+            ✕
+          </button>
+        </div>
+
+        <!-- Method Selector: Mobile Money vs TON -->
+        <div class="grid grid-cols-2 gap-2">
+          <button id="method-momo-btn" onclick="selectWithdrawMethod('momo')" class="p-2.5 rounded-xl border border-amber-400 bg-amber-500/15 text-left transition">
+            <div class="text-xs font-extrabold text-amber-300">📱 Mobile Money</div>
+            <div class="text-[10px] text-slate-300">MTN MoMo / Airtel</div>
+          </button>
+          <button id="method-ton-btn" onclick="selectWithdrawMethod('ton')" class="p-2.5 rounded-xl border border-white/10 bg-white/5 text-left transition">
+            <div class="text-xs font-extrabold text-cyan-300">💎 TON Wallet</div>
+            <div class="text-[10px] text-slate-400">Tonkeeper / Telegram</div>
+          </button>
+        </div>
+
+        <!-- Mobile Money Provider Pills -->
+        <div id="momo-provider-box" class="flex gap-2">
+          <button type="button" onclick="selectMomoNetwork('MTN MoMo')" id="net-mtn" class="flex-1 py-1.5 rounded-lg bg-yellow-400/20 border border-yellow-400 text-yellow-300 text-[11px] font-extrabold">
+            MTN MoMo
+          </button>
+          <button type="button" onclick="selectMomoNetwork('Airtel Money')" id="net-airtel" class="flex-1 py-1.5 rounded-lg bg-white/5 border border-white/10 text-slate-400 text-[11px] font-bold">
+            Airtel Money
+          </button>
+        </div>
+
+        <!-- Destination Input -->
+        <div>
+          <label id="withdraw-dest-label" class="block text-[11px] font-semibold text-slate-300 mb-1" data-i18n="momo_phone_label">
+            Mobile Money Number (078... / 079... / 072...)
+          </label>
+          <input id="withdraw-dest-input" type="text" placeholder="0788 123 456" class="w-full px-3 py-2.5 rounded-xl bg-[#0B0F15] border border-white/15 text-xs font-mono text-white focus:border-amber-400 outline-none" />
+        </div>
+
+        <!-- Amount Input -->
+        <div>
+          <div class="flex justify-between text-[11px] mb-1">
+            <span class="text-slate-300 font-semibold" data-i18n="withdraw_amt_label">Amount of $PUPPY to withdraw</span>
+            <button type="button" onclick="fillMaxWithdraw()" class="text-amber-400 font-bold hover:underline">MAX (<span id="modal-max-kgl">14,850</span>)</button>
+          </div>
+          <input id="withdraw-amount-input" type="number" oninput="updateWithdrawPreview()" placeholder="5000" class="w-full px-3 py-2.5 rounded-xl bg-[#0B0F15] border border-white/15 text-xs font-mono text-white focus:border-amber-400 outline-none" />
+          <div class="mt-1.5 flex items-center justify-between text-[11px] text-slate-400">
+            <span data-i18n="you_will_receive">You will receive:</span>
+            <span id="withdraw-receive-preview" class="font-mono font-bold text-emerald-400">0 RWF</span>
+          </div>
+        </div>
+
+        <button onclick="submitWithdrawal()" class="w-full py-3 rounded-xl bg-gradient-to-r from-amber-500 to-emerald-500 text-slate-950 font-extrabold text-xs shadow-lg active:scale-95 transition">
+          <span data-i18n="confirm_withdraw_btn">Confirm Withdrawal</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Toast Notification Banner (Replaces alert) -->
+    <div id="toast-banner" class="pointer-events-none fixed bottom-24 left-1/2 -translate-x-1/2 z-50 opacity-0 translate-y-3 transition-all duration-300">
+      <div class="px-4 py-2.5 rounded-full bg-[#1E2633]/95 backdrop-blur-md border border-amber-400/40 shadow-2xl flex items-center gap-2 text-xs font-bold text-white whitespace-nowrap">
+        <span id="toast-icon">✨</span>
+        <span id="toast-message">Action completed!</span>
+      </div>
+    </div>
+
+    <!-- Bottom Fixed 4-Tab Telegram Mini App Navigation Bar -->
+    <nav class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] z-40 bg-[#11161F]/95 backdrop-blur-xl border-t border-white/10 px-2 py-2">
+      <div class="grid grid-cols-4 gap-1">
+        <!-- Tab 1: Home -->
+        <button onclick="switchTab('home')" data-tab="home" class="nav-btn active flex flex-col items-center justify-center py-1.5 rounded-xl transition-all text-amber-400 bg-amber-500/10">
+          <svg class="w-5 h-5 mb-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+          <span class="text-[11px] font-bold" data-i18n="nav_home">Home</span>
+        </button>
+
+        <!-- Tab 2: Tasks -->
+        <button onclick="switchTab('tasks')" data-tab="tasks" class="nav-btn flex flex-col items-center justify-center py-1.5 rounded-xl transition-all text-slate-400 hover:text-slate-200">
+          <div class="relative">
+            <svg class="w-5 h-5 mb-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+            </svg>
+            <span id="task-nav-dot" class="absolute -top-0.5 -right-1 w-2 h-2 rounded-full bg-amber-400"></span>
+          </div>
+          <span class="text-[11px] font-semibold" data-i18n="nav_tasks">Tasks</span>
+        </button>
+
+        <!-- Tab 3: Wallet -->
+        <button onclick="switchTab('wallet')" data-tab="wallet" class="nav-btn flex flex-col items-center justify-center py-1.5 rounded-xl transition-all text-slate-400 hover:text-slate-200">
+          <svg class="w-5 h-5 mb-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+          </svg>
+          <span class="text-[11px] font-semibold" data-i18n="nav_wallet">Wallet</span>
+        </button>
+
+        <!-- Tab 4: Profile -->
+        <button onclick="switchTab('profile')" data-tab="profile" class="nav-btn flex flex-col items-center justify-center py-1.5 rounded-xl transition-all text-slate-400 hover:text-slate-200">
+          <svg class="w-5 h-5 mb-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          </svg>
+          <span class="text-[11px] font-semibold" data-i18n="nav_profile">Profile</span>
+        </button>
+      </div>
+    </nav>
+
+  </div>
+
+  <script>
+    // =========================================================
+    // APPLICATION STATE & BILINGUAL DICTIONARY (EN DEFAULT / RW)
+    // =========================================================
+    const CYCLE_DURATION_SEC = 24 * 60 * 60; // 86,400 seconds (24 hours)
+
+    const state = {
+      lang: 'en',
+      balance: 14850.00,
+      tapPower: 2,
+      basePassiveRate: 180, // base $PUPPY per hour
+      speedMultiplier: 1.0,
+      maxSpeedMultiplier: 3.0,
+      lastTapTimestamp: 0,
+      cycleStatus: 'active', // 'ready' | 'active' | 'completed'
+      cycleRemainingSec: 23 * 3600 + 14 * 60 + 8, // starts mid-24h session so user sees live timer immediately
+      sessionMined: 42.50,
+      walletConnected: false,
+      walletAddress: 'UQD4...9kL2',
+      hapticEnabled: true,
+      soundEnabled: true,
+      dailyClaimed: false,
+      unclaimedRef: 450,
+      totalRefEarned: 3420,
+      withdrawMethod: 'momo',
+      momoNetwork: 'MTN MoMo',
+      boosters: {
+        baseSpeed: { level: 2, cost: 500 },
+        maxBoost: { level: 1, cost: 750 },
+        tapBonus: { level: 2, cost: 1200 }
+      },
+      leaderboard: [
+        { rank: 1, name: '@alpha_puppy', badge: '👑', score: 284920, rate: '960/hr' },
+        { rank: 2, name: '@kigali_king', badge: '🥈', score: 192450, rate: '720/hr' },
+        { rank: 3, name: '@puppy_whales', badge: '🥉', score: 148300, rate: '600/hr' },
+        { rank: 4, name: '@puppy_miner (You)', badge: '🐶', score: 14850, rate: '180/hr', isMe: true }
+      ],
+      tasks: [
+        { id: 1, icon: '📢', titleEn: 'Join Official Telegram Channel', titleRw: 'Injira kuri Channel ya Telegram', reward: 1000, status: 'claimed' },
+        { id: 2, icon: '🐦', titleEn: 'Follow @PuppyMiner on X (Twitter)', titleRw: 'Kurikira @PuppyMiner kuri X', reward: 750, status: 'start' },
+        { id: 3, icon: '▶️', titleEn: 'Watch Mining Guide on YouTube', titleRw: 'Reba Video yuko bakora Mining', reward: 1200, status: 'start' },
+        { id: 4, icon: '💎', titleEn: 'Connect TON Wallet', titleRw: 'Huza Wallet yawe ya TON', reward: 2000, status: 'start' },
+        { id: 5, icon: '🤝', titleEn: 'Invite 3 Active Friends', titleRw: 'Tumira inshuti 3 zikora Mining', reward: 3000, status: 'start' }
+      ],
+      transactions: [
+        { id: 'tx1', typeEn: '24h Mining Cycle Claim', typeRw: 'Ibihembo bya Mining 24h', amount: '+180.00 $PUPPY', time: '2h ago', positive: true },
+        { id: 'tx2', typeEn: 'Telegram Channel Task', typeRw: 'Task ya Telegram', amount: '+1,000.00 $PUPPY', time: 'Yesterday', positive: true },
+        { id: 'tx3', typeEn: 'Base Speed Upgrade (Lvl 2)', typeRw: 'Kuzamura Base Speed', amount: '-250.00 $PUPPY', time: '2 days ago', positive: false }
+      ]
+    };
+
+    const i18n = {
+      en: {
+        gold_league: 'Puppy Pack • Lvl 4',
+        total_balance: 'Total Mined Balance',
+        cycle_active_title: '24h Mining In Progress',
+        cycle_completed_title: '24h Mining Completed!',
+        cycle_ready_title: 'Ready to Start 24h Mining',
+        session_mined: 'Session Mined:',
+        demo_finish_btn: 'Test End 24h',
+        speed_boost_label: 'Tap Speed Multiplier',
+        tap_boost_speed: 'TAP TO BOOST SPEED',
+        start_24h_mining: 'START 24H MINING',
+        claim_restart_24h: 'CLAIM & RESTART 24H',
+        reactor_hint_active: 'Tap rapidly to boost mining speed! Keeps mining 24h even if you stop.',
+        reactor_hint_completed: '24-hour cycle finished! Tap the orb to claim rewards & start the next 24h.',
+        reactor_hint_ready: 'Tap the orb to start your 24-hour automated Puppy mining cycle.',
+        boost_base_speed: 'Base Speed',
+        boost_max_mult: 'Max Multiplier',
+        boost_tap_bonus: 'Tap Bonus',
+        leaderboard_title: 'Top Miners Leaderboard',
+        live_badge: 'LIVE',
+        tasks_title: 'Earn More $PUPPY',
+        tasks_subtitle: 'Complete daily missions & social tasks for instant rewards.',
+        daily_checkin: 'Daily Check-in',
+        daily_streak_sub: '7-day streak unlocks 5,000 $PUPPY bonus',
+        checkin_btn: 'Claim Day 4',
+        checkin_done: 'Claimed ✓',
+        ref_hub_title: 'Referrals Hub',
+        recent_friends: 'Recently Joined Friends',
+        social_tasks_header: 'Social & Community Tasks',
+        wallet_title: 'TON & Crypto Wallet',
+        wallet_disconnected: 'Connect Tonkeeper or Telegram Wallet',
+        connect_ton_btn: 'Connect TON Wallet',
+        portfolio_overview: 'Portfolio Overview',
+        available_bal: 'Available Balance',
+        staked_bal: 'Staked / Locked',
+        withdraw_btn: 'Withdraw',
+        swap_btn: 'Swap to TON',
+        tx_history: 'Recent Activity',
+        invite_friends: 'Invite Friends & Earn',
+        invite_desc: "Get +1,000 $PUPPY + 10% of friends' mining!",
+        invited_count: 'Friends Invited',
+        ref_earnings: 'Referral Bonus ($PUPPY)',
+        copy_btn: 'Copy',
+        setting_lang: 'Language / Ururimi',
+        setting_haptic: 'Haptic Vibration',
+        setting_haptic_sub: 'Vibrate on mining taps',
+        setting_sound: 'Synth Sound Effects',
+        setting_sound_sub: 'Audio feedback on tap & claim',
+        nav_home: 'Home',
+        nav_tasks: 'Tasks',
+        nav_wallet: 'Wallet',
+        nav_profile: 'Profile',
+        task_start: 'Start',
+        task_verify: 'Verify',
+        task_claim: 'Claim',
+        task_done: 'Done',
+        withdraw_modal_title: 'Withdraw Funds ($PUPPY)',
+        momo_phone_label: 'Mobile Money Number (078... / 079... / 072...)',
+        ton_addr_label: 'TON Wallet Address (Tonkeeper / Telegram)',
+        withdraw_amt_label: 'Amount of $PUPPY to withdraw',
+        you_will_receive: 'You will receive:',
+        confirm_withdraw_btn: 'Confirm Withdrawal'
+      },
+      rw: {
+        gold_league: 'Puppy Pack • Lvl 4',
+        total_balance: 'Amafaranga Yose Wabonye',
+        cycle_active_title: 'Mining y’Amasaha 24 Iri Gukora',
+        cycle_completed_title: 'Mining y’Amasaha 24 Yarangiye!',
+        cycle_ready_title: 'Witeguye Gutangira Mining 24h',
+        session_mined: 'Ayacukuwe muri iyi 24h:',
+        demo_finish_btn: 'Gerageza 24h Zirangiye',
+        speed_boost_label: 'Umuvuduko wo Gukanda (Speed)',
+        tap_boost_speed: 'KANDA WONGERE UMUYAGA',
+        start_24h_mining: 'TANGIRA MINING 24H',
+        claim_restart_24h: 'FATA & ONGERA UTANGIRE 24H',
+        reactor_hint_active: 'Kanda kenshi wongere umuvuduko! Niyo wahagarara ikomeza gukora amasaha 24.',
+        reactor_hint_completed: 'Amasaha 24 yarangiye! Kanda ku mupira ufate ibihembo utangire andi masaha 24.',
+        reactor_hint_ready: 'Kanda ku mupira utangize mining yikoresha mu gihe cy’amasaha 24.',
+        boost_base_speed: 'Umuvuduko Shingiro',
+        boost_max_mult: 'Inshuro Ntarengwa',
+        boost_tap_bonus: 'Inyungu yo Gukanda',
+        leaderboard_title: 'Urutonde rw’Abacukuzi ba Mbere',
+        live_badge: 'LIVE',
+        tasks_title: 'Korera Andi $PUPPY',
+        tasks_subtitle: 'Kora ama-task ya buri munsi ubone ibihembo ako kanya.',
+        daily_checkin: 'Ibihembo bya Buri Munsi',
+        daily_streak_sub: 'Iminsi 7 ikurikirana ihesha 5,000 $PUPPY',
+        checkin_btn: 'Fata Umunsi wa 4',
+        checkin_done: 'Byafashwe ✓',
+        ref_hub_title: 'Abatumiwe (Referrals Hub)',
+        recent_friends: 'Inshuti Zawe Ziheruka Kwinjira',
+        social_tasks_header: 'Ama-Task yo ku Mbuga Nkoranyambaga',
+        wallet_title: 'Wallet ya TON & Crypto',
+        wallet_disconnected: 'Huza Tonkeeper cyangwa Telegram Wallet',
+        connect_ton_btn: 'Huza TON Wallet',
+        portfolio_overview: 'Incamake y’Umutungo',
+        available_bal: 'Ayabonetse Yose',
+        staked_bal: 'Ayabitswe (Staked)',
+        withdraw_btn: 'Kubikuza',
+        swap_btn: 'Kuvunja muri TON',
+        tx_history: 'Ibikorwa Biheruka',
+        invite_friends: 'Tumira Inshuti Uhembwe',
+        invite_desc: 'Habwa +1,000 $PUPPY + 10% by’ibyo inshuti zicukura!',
+        invited_count: 'Inshuti Watumiye',
+        ref_earnings: 'Ibihembo by’Inshuti ($PUPPY)',
+        copy_btn: 'Koporora',
+        setting_lang: 'Ururimi / Language',
+        setting_haptic: 'Kunyeganyega (Vibration)',
+        setting_haptic_sub: 'Iyo ukanze ukora mining',
+        setting_sound: 'Amajwi yo Gukanda',
+        setting_sound_sub: 'Amajwi igihe ukora mining',
+        nav_home: 'Ahabanza',
+        nav_tasks: 'Ama-Task',
+        nav_wallet: 'Ikofi',
+        nav_profile: 'Umwirondoro',
+        task_start: 'Tangira',
+        task_verify: 'Emeza',
+        task_claim: 'Fata',
+        task_done: 'Byakozwe',
+        withdraw_modal_title: 'Kubikuza Amafaranga ($PUPPY)',
+        momo_phone_label: 'Nimero ya Telefoni (078... / 079... / 072...)',
+        ton_addr_label: 'Aderesi ya TON Wallet (Tonkeeper / Telegram)',
+        withdraw_amt_label: 'Umubare wa $PUPPY ubikuza',
+        you_will_receive: 'Uzabona:',
+        confirm_withdraw_btn: 'Emeza Kubikuza'
+      }
+    };
+
+    // =========================================================
+    // HOME: SINGLE 24H REACTOR, TAP-TO-BOOST SPEED & BOOSTERS
+    // =========================================================
+    function formatSecondsHMS(totalSec) {
+      const s = Math.max(0, Math.floor(totalSec));
+      const hrs = String(Math.floor(s / 3600)).padStart(2, '0');
+      const mins = String(Math.floor((s % 3600) / 60)).padStart(2, '0');
+      const secs = String(s % 60).padStart(2, '0');
+      return `${hrs}:${mins}:${secs}`;
+    }
+
+    function spawnFloatingParticle(e, text) {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const clientX = e.clientX || (rect.left + rect.width / 2);
+      const clientY = e.clientY || (rect.top + rect.height / 2);
+
+      const floater = document.createElement('div');
+      floater.className = 'floating-number';
+      floater.textContent = text;
+      floater.style.left = `${clientX - 24}px`;
+      floater.style.top = `${clientY - 24}px`;
+      document.body.appendChild(floater);
+      setTimeout(() => floater.remove(), 850);
+    }
+
+    function handleReactorInteraction(e) {
+      // State 1: 24h cycle completed -> Claim rewards and restart next 24h cycle
+      if (state.cycleStatus === 'completed') {
+        const reward = Math.max(100, Number(state.sessionMined.toFixed(2)));
+        state.balance += reward;
+        addTransaction('24h Mining Cycle Claim', 'Ibihembo bya Mining 24h', `+${reward.toFixed(2)} $PUPPY`, true);
+        state.sessionMined = 0;
+        state.cycleRemainingSec = CYCLE_DURATION_SEC;
+        state.cycleStatus = 'active';
+        state.speedMultiplier = 1.0;
+        triggerHaptic(30);
+        playTone(860, 0.16, 'sine');
+        spawnFloatingParticle(e, `+${reward.toFixed(0)} $PUPPY!`);
+        showToast(
+          state.lang === 'en'
+            ? `Claimed +${reward.toFixed(2)} $PUPPY! New 24h mining started.`
+            : `Wabonye +${reward.toFixed(2)} $PUPPY! Indi 24h itangiye.`,
+          '🎉'
+        );
+        updateUI();
+        return;
+      }
+
+      // State 2: Ready -> Start 24h mining cycle
+      if (state.cycleStatus === 'ready') {
+        state.cycleStatus = 'active';
+        state.cycleRemainingSec = CYCLE_DURATION_SEC;
+        state.sessionMined = 0;
+        state.speedMultiplier = 1.15;
+        state.lastTapTimestamp = Date.now();
+        triggerHaptic(22);
+        playTone(720, 0.12, 'sine');
+        spawnFloatingParticle(e, '24H STARTED!');
+        showToast(
+          state.lang === 'en'
+            ? '24-Hour Mining Started! Tap to boost speed.'
+            : 'Mining y’amasaha 24 itangiye! Kanda wongere umuvuduko.',
+          '🚀'
+        );
+        updateUI();
+        return;
+      }
+
+      // State 3: Active 24h cycle -> Tapping increases Tap Speed Multiplier & mines instant bonus
+      state.lastTapTimestamp = Date.now();
+      state.speedMultiplier = Math.min(
+        state.maxSpeedMultiplier,
+        Number((state.speedMultiplier + 0.08).toFixed(2))
+      );
+
+      const tapEarned = Number((state.tapPower * state.speedMultiplier).toFixed(2));
+      state.balance += tapEarned;
+      state.sessionMined += tapEarned;
+
+      triggerHaptic(14);
+      playTone(580 + state.speedMultiplier * 140, 0.055, 'triangle');
+      spawnFloatingParticle(e, `+${tapEarned.toFixed(1)} (${state.speedMultiplier.toFixed(2)}x)`);
+
+      updateUI();
+    }
+
+    function fastForwardCycleDemo() {
+      if (state.cycleStatus !== 'active') return;
+      state.cycleRemainingSec = 0;
+      state.cycleStatus = 'completed';
+      state.speedMultiplier = 1.0;
+      triggerHaptic(25);
+      playTone(820, 0.14, 'sine');
+      showToast(
+        state.lang === 'en'
+          ? '24h cycle complete! Tap the Puppy orb to claim & restart.'
+          : 'Amasaha 24 ararangiye! Kanda ku mupira ufate ibihembo.',
+        '⏰'
+      );
+      updateUI();
+    }
+
+    function upgradeBooster(type) {
+      const b = state.boosters[type];
+      if (state.balance < b.cost) {
+        showToast(state.lang === 'en' ? 'Insufficient $PUPPY balance!' : 'Ntabwo ufite $PUPPY zihagije!', '⚠️');
+        return;
+      }
+
+      state.balance -= b.cost;
+      b.level += 1;
+      const oldCost = b.cost;
+      b.cost = Math.round(b.cost * 1.65);
+
+      if (type === 'baseSpeed') {
+        state.basePassiveRate += 60;
+        addTransaction(`Base Speed Upgrade (Lvl ${b.level})`, `Kuzamura Base Speed (Lvl ${b.level})`, `-${oldCost} $PUPPY`, false);
+      } else if (type === 'maxBoost') {
+        state.maxSpeedMultiplier = Number((state.maxSpeedMultiplier + 0.5).toFixed(1));
+        addTransaction(`Max Multiplier (Lvl ${b.level})`, `Kuzamura Inshuro Ntarengwa (Lvl ${b.level})`, `-${oldCost} $PUPPY`, false);
+      } else if (type === 'tapBonus') {
+        state.tapPower += 1;
+        addTransaction(`Tap Bonus Upgrade (Lvl ${b.level})`, `Kuzamura Inyungu yo Gukanda (Lvl ${b.level})`, `-${oldCost} $PUPPY`, false);
+      }
+
+      triggerHaptic(20);
+      playTone(840, 0.12, 'sine');
+      showToast(state.lang === 'en' ? `Upgraded to Level ${b.level}!` : `Byazamuwe ku rwego rwa ${b.level}!`, '🚀');
+      updateUI();
+    }
+
+    // =========================================================
+    // TASKS & DAILY STREAK
+    // =========================================================
+    function renderStreak() {
+      const grid = document.getElementById('streak-grid');
+      const rewards = ['100', '250', '500', '1K', '1.5K', '2.5K', '5K'];
+      grid.innerHTML = rewards.map((amt, idx) => {
+        const day = idx + 1;
+        const isPast = day < 4 || (day === 4 && state.dailyClaimed);
+        const isToday = day === 4 && !state.dailyClaimed;
+        return `
+          <div class="rounded-xl py-2 px-1 border ${
+            isToday
+              ? 'bg-amber-500/20 border-amber-400 text-amber-300 shadow-md shadow-amber-500/10'
+              : isPast
+              ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
+              : 'bg-white/[0.02] border-white/5 text-slate-500'
+          }">
+            <div class="text-[9px] font-bold">D${day}</div>
+            <div class="text-[11px] font-black font-mono mt-0.5">${isPast ? '✓' : amt}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function claimDailyStreak() {
+      if (state.dailyClaimed) return;
+      state.dailyClaimed = true;
+      state.balance += 1000;
+      const btn = document.getElementById('daily-claim-btn');
+      btn.classList.remove('bg-amber-500', 'hover:bg-amber-400', 'text-slate-950');
+      btn.classList.add('bg-emerald-500/20', 'text-emerald-400', 'border', 'border-emerald-500/30');
+      btn.innerHTML = `<span>${i18n[state.lang].checkin_done}</span>`;
+      addTransaction('Daily Check-in (Day 4)', 'Igihembo cy’Umunsi wa 4', '+1,000.00 $PUPPY', true);
+      triggerHaptic(30);
+      playTone(880, 0.15, 'sine');
+      showToast('+1,000 $PUPPY Daily Bonus!', '🔥');
+      renderStreak();
+      updateUI();
+    }
+
+    function renderTasks() {
+      const container = document.getElementById('task-list-container');
+      const dict = i18n[state.lang];
+      let completedCount = 0;
+
+      container.innerHTML = state.tasks.map(task => {
+        if (task.status === 'claimed') completedCount++;
+        const title = state.lang === 'en' ? task.titleEn : task.titleRw;
+
+        let btnHtml = '';
+        if (task.status === 'claimed') {
+          btnHtml = `<span class="px-3 py-1.5 rounded-xl bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-xs font-bold">✓ ${dict.task_done}</span>`;
+        } else if (task.status === 'verifying') {
+          btnHtml = `<button disabled class="px-3.5 py-1.5 rounded-xl bg-cyan-500/20 text-cyan-300 text-xs font-bold animate-pulse">${dict.task_verify}...</button>`;
+        } else if (task.status === 'claim') {
+          btnHtml = `<button onclick="handleTaskClick(${task.id})" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 font-extrabold text-xs shadow-md active:scale-95 transition">${dict.task_claim}</button>`;
+        } else {
+          btnHtml = `<button onclick="handleTaskClick(${task.id})" class="px-3.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-bold text-xs active:scale-95 transition">${dict.task_start}</button>`;
+        }
+
+        return `
+          <div class="glass-card rounded-2xl p-3 flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-lg shrink-0">
+                ${task.icon}
+              </div>
+              <div class="min-w-0">
+                <div class="text-xs font-bold text-white truncate">${title}</div>
+                <div class="text-[11px] font-mono font-bold text-amber-400 mt-0.5">+${task.reward.toLocaleString()} $PUPPY</div>
+              </div>
+            </div>
+            <div class="shrink-0">${btnHtml}</div>
+          </div>
+        `;
+      }).join('');
+
+      document.getElementById('tasks-completed-count').textContent = completedCount;
+      const navDot = document.getElementById('task-nav-dot');
+      if (completedCount === state.tasks.length) {
+        navDot.classList.add('hidden');
+      } else {
+        navDot.classList.remove('hidden');
+      }
+    }
+
+    function handleTaskClick(taskId) {
+      const task = state.tasks.find(t => t.id === taskId);
+      if (!task) return;
+
+      if (task.status === 'start') {
+        triggerHaptic(10);
+        task.status = 'verifying';
+        renderTasks();
+        showToast(state.lang === 'en' ? 'Verifying task completion...' : 'Turi kugenzura ko warangije task...', '🔍');
+        setTimeout(() => {
+          task.status = 'claim';
+          renderTasks();
+          playTone(680, 0.08, 'sine');
+        }, 1300);
+      } else if (task.status === 'claim') {
+        task.status = 'claimed';
+        state.balance += task.reward;
+        addTransaction(task.titleEn, task.titleRw, `+${task.reward.toLocaleString()} $PUPPY`, true);
+        triggerHaptic(25);
+        playTone(920, 0.15, 'sine');
+        showToast(`+${task.reward.toLocaleString()} $PUPPY ${state.lang === 'en' ? 'earned!' : 'byabitswe!'}`, '🎉');
+        renderTasks();
+        updateUI();
+      }
+    }
+
+    function renderLeaderboard() {
+      const container = document.getElementById('leaderboard-list');
+      if (!container) return;
+      const currentEffectiveRate = Math.round(state.basePassiveRate * state.speedMultiplier);
+      state.leaderboard[3].score = Math.floor(state.balance);
+      state.leaderboard[3].rate = `${currentEffectiveRate}/hr`;
+      state.leaderboard[3].name = state.lang === 'rw' ? '@puppy_miner (Wowe)' : '@puppy_miner (You)';
+
+      container.innerHTML = state.leaderboard.map(item => `
+        <div class="flex items-center justify-between p-2 rounded-xl ${
+          item.isMe
+            ? 'bg-amber-500/15 border border-amber-400/40'
+            : 'bg-white/[0.03] border border-white/5'
+        }">
+          <div class="flex items-center gap-2.5 min-w-0">
+            <span class="w-6 h-6 rounded-lg bg-white/5 flex items-center justify-center text-xs font-bold shrink-0">
+              ${item.badge}
+            </span>
+            <div class="min-w-0">
+              <div class="text-xs font-bold ${item.isMe ? 'text-amber-300' : 'text-white'} truncate">${item.name}</div>
+              <div class="text-[10px] text-slate-400">⚡ ${item.rate}</div>
+            </div>
+          </div>
+          <div class="text-xs font-mono font-extrabold ${item.isMe ? 'text-amber-300' : 'text-cyan-300'} shrink-0">
+            ${item.score.toLocaleString()} $PUPPY
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function claimReferralRewards() {
+      if (state.unclaimedRef <= 0) {
+        showToast(state.lang === 'rw' ? 'Nta bihembo bishya by’inshuti biraboneka!' : 'No new referral rewards yet!', '⏳');
+        return;
+      }
+      const amt = state.unclaimedRef;
+      state.balance += amt;
+      state.totalRefEarned += amt;
+      state.unclaimedRef = 0;
+      document.getElementById('unclaimed-ref-amt').textContent = '0';
+      document.getElementById('total-ref-earned').textContent = `+${state.totalRefEarned.toLocaleString()}`;
+      addTransaction('Referral Commission Claim', 'Ibihembo by’Abatumiwe', `+${amt.toFixed(2)} $PUPPY`, true);
+      triggerHaptic(22);
+      playTone(860, 0.14, 'sine');
+      showToast(`+${amt} $PUPPY ${state.lang === 'rw' ? 'byabitswe!' : 'claimed!'}`, '🤝');
+      updateUI();
+    }
+
+    // =========================================================
+    // WALLET, WITHDRAW MODAL & TRANSACTIONS
+    // =========================================================
+    function toggleWalletConnection() {
+      triggerHaptic(18);
+      state.walletConnected = !state.walletConnected;
+      const btn = document.getElementById('connect-wallet-btn');
+      const label = document.getElementById('connect-wallet-label');
+      const statusText = document.getElementById('wallet-status-text');
+
+      if (state.walletConnected) {
+        btn.classList.remove('from-cyan-500', 'to-blue-500', 'text-slate-950');
+        btn.classList.add('bg-emerald-500/15', 'border', 'border-emerald-500/40', 'text-emerald-300');
+        label.textContent =
+          state.lang === 'en'
+            ? `Connected (${state.walletAddress}) • Disconnect`
+            : `Yarahujwe (${state.walletAddress}) • Kuraho`;
+        statusText.textContent =
+          state.lang === 'en' ? 'Tonkeeper Wallet Active • Ready for Airdrop' : 'Tonkeeper Iri Gukora • Yiteguye Airdrop';
+        playTone(760, 0.12, 'sine');
+        showToast(state.lang === 'en' ? 'TON Wallet connected!' : 'TON Wallet yahujwe neza!', '💎');
+      } else {
+        btn.classList.add('from-cyan-500', 'to-blue-500', 'text-slate-950');
+        btn.classList.remove('bg-emerald-500/15', 'border', 'border-emerald-500/40', 'text-emerald-300');
+        label.textContent = i18n[state.lang].connect_ton_btn;
+        statusText.textContent = i18n[state.lang].wallet_disconnected;
+        showToast(state.lang === 'en' ? 'Wallet disconnected' : 'Wallet yakuweho', '🔌');
+      }
+    }
+
+    function openWithdrawModal() {
+      triggerHaptic(12);
+      document.getElementById('modal-max-kgl').textContent = Math.floor(state.balance).toLocaleString();
+      document.getElementById('withdraw-modal').classList.remove('hidden');
+      document.getElementById('withdraw-modal').classList.add('flex');
+      selectWithdrawMethod(state.withdrawMethod);
+      updateWithdrawPreview();
+    }
+
+    function closeWithdrawModal() {
+      document.getElementById('withdraw-modal').classList.add('hidden');
+      document.getElementById('withdraw-modal').classList.remove('flex');
+    }
+
+    function selectWithdrawMethod(method) {
+      state.withdrawMethod = method;
+      const momoBtn = document.getElementById('method-momo-btn');
+      const tonBtn = document.getElementById('method-ton-btn');
+      const momoBox = document.getElementById('momo-provider-box');
+      const destLabel = document.getElementById('withdraw-dest-label');
+      const destInput = document.getElementById('withdraw-dest-input');
+
+      if (method === 'momo') {
+        momoBtn.className = 'p-2.5 rounded-xl border border-amber-400 bg-amber-500/15 text-left transition';
+        tonBtn.className = 'p-2.5 rounded-xl border border-white/10 bg-white/5 text-left transition';
+        momoBox.classList.remove('hidden');
+        destLabel.textContent = i18n[state.lang].momo_phone_label;
+        destInput.placeholder = '0788 123 456';
+        destInput.value = '';
+      } else {
+        tonBtn.className = 'p-2.5 rounded-xl border border-cyan-400 bg-cyan-500/15 text-left transition';
+        momoBtn.className = 'p-2.5 rounded-xl border border-white/10 bg-white/5 text-left transition';
+        momoBox.classList.add('hidden');
+        destLabel.textContent = i18n[state.lang].ton_addr_label;
+        destInput.placeholder = 'UQD4x8...9kL2';
+        destInput.value = state.walletConnected ? state.walletAddress : '';
+      }
+      updateWithdrawPreview();
+    }
+
+    function selectMomoNetwork(network) {
+      state.momoNetwork = network;
+      const mtn = document.getElementById('net-mtn');
+      const airtel = document.getElementById('net-airtel');
+      if (network === 'MTN MoMo') {
+        mtn.className = 'flex-1 py-1.5 rounded-lg bg-yellow-400/20 border border-yellow-400 text-yellow-300 text-[11px] font-extrabold';
+        airtel.className = 'flex-1 py-1.5 rounded-lg bg-white/5 border border-white/10 text-slate-400 text-[11px] font-bold';
+      } else {
+        airtel.className = 'flex-1 py-1.5 rounded-lg bg-rose-500/20 border border-rose-400 text-rose-300 text-[11px] font-extrabold';
+        mtn.className = 'flex-1 py-1.5 rounded-lg bg-white/5 border border-white/10 text-slate-400 text-[11px] font-bold';
+      }
+    }
+
+    function fillMaxWithdraw() {
+      document.getElementById('withdraw-amount-input').value = Math.floor(state.balance);
+      updateWithdrawPreview();
+    }
+
+    function updateWithdrawPreview() {
+      const amt = parseFloat(document.getElementById('withdraw-amount-input').value) || 0;
+      const preview = document.getElementById('withdraw-receive-preview');
+      if (state.withdrawMethod === 'momo') {
+        const rwf = Math.floor(amt * 2.8);
+        preview.textContent = `${rwf.toLocaleString()} RWF (${state.momoNetwork})`;
+      } else {
+        const ton = (amt * 0.00038).toFixed(3);
+        preview.textContent = `${ton} TON`;
+      }
+    }
+
+    function submitWithdrawal() {
+      const dest = document.getElementById('withdraw-dest-input').value.trim();
+      const amt = parseFloat(document.getElementById('withdraw-amount-input').value) || 0;
+
+      if (!dest) {
+        showToast(state.lang === 'rw' ? 'Andika nimero cyangwa aderesi!' : 'Enter destination number or address!', '⚠️');
+        return;
+      }
+      if (amt < 2000) {
+        showToast(state.lang === 'rw' ? 'Kubikuza bihera kuri 2,000 $PUPPY!' : 'Minimum withdrawal is 2,000 $PUPPY!', '⚠️');
+        return;
+      }
+      if (amt > state.balance) {
+        showToast(state.lang === 'rw' ? 'Ntabwo ufite $PUPPY zihagije!' : 'Insufficient $PUPPY balance!', '⚠️');
+        return;
+      }
+
+      state.balance -= amt;
+      const channel = state.withdrawMethod === 'momo' ? state.momoNetwork : 'TON Wallet';
+      addTransaction(
+        `Withdraw to ${channel}`,
+        `Kubikuza kuri ${channel} (${dest.slice(0, 10)})`,
+        `-${amt.toLocaleString()} $PUPPY`,
+        false
+      );
+      closeWithdrawModal();
+      triggerHaptic(30);
+      playTone(880, 0.16, 'sine');
+      showToast(
+        state.lang === 'rw'
+          ? `Ubusabe bwo kubikuza ${amt.toLocaleString()} $PUPPY bwoherejwe!`
+          : `Withdrawal of ${amt.toLocaleString()} $PUPPY submitted!`,
+        '✅'
+      );
+      updateUI();
+    }
+
+    function handleWalletAction(action) {
+      if (!state.walletConnected) {
+        showToast(state.lang === 'en' ? 'Please connect your TON Wallet first!' : 'Banza uhuze TON Wallet yawe!', '💎');
+        return;
+      }
+      triggerHaptic(12);
+      const tonVal = (state.balance * 0.00038).toFixed(2);
+      showToast(`Est. Swap: ${Math.floor(state.balance).toLocaleString()} $PUPPY ≈ ${tonVal} TON`, '🔄');
+    }
+      if (amt > state.balance) {
+        showToast(state.lang === 'rw' ? 'Ntabwo ufite $KGL zihagije!' : 'Insufficient $KGL balance!', '⚠️');
+        return;
+      }
+
+      state.balance -= amt;
+      const channel = state.withdrawMethod === 'momo' ? state.momoNetwork : 'TON Wallet';
+      addTransaction(
+        `Withdraw to ${channel}`,
+        `Kubikuza kuri ${channel} (${dest.slice(0, 10)})`,
+        `-${amt.toLocaleString()} $KGL`,
+        false
+      );
+      closeWithdrawModal();
+      triggerHaptic(30);
+      playTone(880, 0.16, 'sine');
+      showToast(
+        state.lang === 'rw'
+          ? `Ubusabe bwo kubikuza ${amt.toLocaleString()} $KGL bwoherejwe!`
+          : `Withdrawal of ${amt.toLocaleString()} $KGL submitted!`,
+        '✅'
+      );
+      updateUI();
+    }
+
+    function handleWalletAction(action) {
+      if (!state.walletConnected) {
+        showToast(state.lang === 'en' ? 'Please connect your TON Wallet first!' : 'Banza uhuze TON Wallet yawe!', '💎');
+        return;
+      }
+      triggerHaptic(12);
+      const tonVal = (state.balance * 0.00038).toFixed(2);
+      showToast(`Est. Swap: ${Math.floor(state.balance).toLocaleString()} $KGL ≈ ${tonVal} TON`, '🔄');
+    }
+
+    function addTransaction(typeEn, typeRw, amount, positive) {
+      state.transactions.unshift({
+        id: 'tx_' + Date.now(),
+        typeEn,
+        typeRw,
+        amount,
+        time: state.lang === 'en' ? 'Just now' : 'Ako kanya',
+        positive
+      });
+      renderTransactions();
+    }
+
+    function renderTransactions() {
+      const container = document.getElementById('tx-history-list');
+      container.innerHTML = state.transactions.slice(0, 6).map(tx => {
+        const title = state.lang === 'en' ? tx.typeEn : tx.typeRw;
+        return `
+          <div class="glass-card rounded-xl p-3 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-lg ${tx.positive ? 'bg-emerald-500/15 text-emerald-400' : 'bg-amber-500/15 text-amber-400'} flex items-center justify-center text-xs font-bold">
+                ${tx.positive ? '↓' : '↑'}
+              </div>
+              <div>
+                <div class="text-xs font-bold text-white">${title}</div>
+                <div class="text-[10px] text-slate-400">${tx.time}</div>
+              </div>
+            </div>
+            <div class="text-xs font-mono font-bold ${tx.positive ? 'text-emerald-400' : 'text-amber-400'}">
+              ${tx.amount}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // =========================================================
+    // PROFILE: COPY REFERRAL, TOGGLES & LANGUAGE SWITCHER
+    // =========================================================
+    function copyReferralLink(inputId = 'ref-link-input') {
+      const input = document.getElementById(inputId);
+      input.select();
+      input.setSelectionRange(0, 99999);
+      try {
+        document.execCommand('copy');
+      } catch (e) {}
+      triggerHaptic(15);
+      playTone(720, 0.08, 'sine');
+      showToast(state.lang === 'en' ? 'Invite link copied to clipboard!' : 'Link yo gutumira yakoporowe!', '📋');
+    }
+
+    function toggleSwitch(btn) {
+      const isOn = btn.classList.contains('bg-emerald-500');
+      if (isOn) {
+        btn.classList.remove('bg-emerald-500', 'justify-end');
+        btn.classList.add('bg-slate-700', 'justify-start');
+      } else {
+        btn.classList.add('bg-emerald-500', 'justify-end');
+        btn.classList.remove('bg-slate-700', 'justify-start');
+      }
+      if (btn.id === 'toggle-haptic') state.hapticEnabled = !isOn;
+      if (btn.id === 'toggle-sound') state.soundEnabled = !isOn;
+      triggerHaptic(10);
+    }
+
+    function toggleLanguage() {
+      state.lang = state.lang === 'en' ? 'rw' : 'en';
+      const dict = i18n[state.lang];
+
+      document.getElementById('lang-badge').textContent = state.lang.toUpperCase();
+      document.getElementById('settings-lang-label').textContent = state.lang === 'en' ? 'English (EN)' : 'Ikinyarwanda (RW)';
+
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (dict[key]) {
+          el.textContent = dict[key];
+        }
+      });
+
+      if (state.dailyClaimed) {
+        document.getElementById('daily-claim-btn').innerHTML = `<span>${dict.checkin_done}</span>`;
+      }
+      if (state.walletConnected) {
+        document.getElementById('connect-wallet-label').textContent =
+          state.lang === 'en' ? `Connected (${state.walletAddress}) • Disconnect` : `Yarahujwe (${state.walletAddress}) • Kuraho`;
+      }
+
+      renderTasks();
+      renderTransactions();
+      renderLeaderboard();
+      triggerHaptic(10);
+      showToast(state.lang === 'en' ? 'Switched to English' : 'Byahinduwe mu Kinyarwanda', '🌐');
+    }
+
+    // =========================================================
+    // REAL-TIME UI SYNC & PASSIVE REGENERATION LOOP
+    // =========================================================
+    function updateUI() {
+      document.getElementById('balance-display').textContent = state.balance.toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+      document.getElementById('usd-estimate').textContent = (state.balance * 0.002).toFixed(2);
+      document.getElementById('wallet-avail-kgl').textContent = Math.floor(state.balance).toLocaleString();
+
+      document.getElementById('tap-power-label').textContent = state.tapPower;
+      document.getElementById('passive-rate-label').textContent = state.passiveRate;
+
+      document.getElementById('energy-current').textContent = Math.floor(state.energy);
+      document.getElementById('energy-max').textContent = state.maxEnergy;
+      document.getElementById('energy-bar').style.width = `${Math.min(100, (state.energy / state.maxEnergy) * 100)}%`;
+
+      document.getElementById('pool-amount').textContent = state.autoPool.toFixed(2);
+      document.getElementById('auto-mine-progress').style.width = `${Math.min(100, (state.autoPool / state.maxPool) * 100)}%`;
+
+      // Booster levels & costs
+      document.getElementById('lvl-multitap').textContent = state.boosters.multitap.level;
+      document.getElementById('cost-multitap').textContent = `${state.boosters.multitap.cost.toLocaleString()} $PUPPY`;
+
+      document.getElementById('lvl-energy').textContent = state.boosters.energy.level;
+      document.getElementById('cost-energy').textContent = `${state.boosters.energy.cost.toLocaleString()} $PUPPY`;
+
+      document.getElementById('lvl-autobot').textContent = state.boosters.autobot.level;
+      document.getElementById('cost-autobot').textContent = `${state.boosters.autobot.cost.toLocaleString()} $PUPPY`;
+
+      renderLeaderboard();
+    }
+
+    // Background tick every 1 second for energy regeneration & auto-miner accumulation
+    setInterval(() => {
+      if (state.energy < state.maxEnergy) {
+        state.energy = Math.min(state.maxEnergy, state.energy + 3);
+      }
+      if (state.autoPool < state.maxPool) {
+        // Accelerated demo rate so user sees live progress
+        state.autoPool = Math.min(state.maxPool, state.autoPool + (state.passiveRate / 1200));
+      }
+      updateUI();
+    }, 1000);
+
+    // Initialize Views
+    window.addEventListener('DOMContentLoaded', () => {
+      renderStreak();
+      renderTasks();
+      renderTransactions();
+      renderLeaderboard();
+      updateUI();
+      triggerHaptic(10);
+      showToast(state.lang === 'en' ? 'Switched to English' : 'Byahinduwe mu Kinyarwanda', '🌐');
+    }
+
+    // =========================================================
+    // REAL-TIME UI SYNC & 24-HOUR MINING ENGINE
+    // =========================================================
+    function updateUI() {
+      const dict = i18n[state.lang];
+      const effectiveRate = state.cycleStatus === 'active'
+        ? Math.round(state.basePassiveRate * state.speedMultiplier)
+        : 0;
+
+      document.getElementById('balance-display').textContent = state.balance.toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+      document.getElementById('usd-estimate').textContent = (state.balance * 0.002).toFixed(2);
+      document.getElementById('wallet-avail-kgl').textContent = Math.floor(state.balance).toLocaleString();
+
+      document.getElementById('tap-power-label').textContent = state.tapPower;
+      document.getElementById('passive-rate-label').textContent = effectiveRate;
+      document.getElementById('effective-rate-label').textContent = effectiveRate;
+      document.getElementById('session-mined-label').textContent = state.sessionMined.toFixed(2);
+      document.getElementById('countdown-timer').textContent = formatSecondsHMS(state.cycleRemainingSec);
+
+      // Speed Multiplier Bar & Label
+      document.getElementById('speed-multiplier-label').textContent = `${state.speedMultiplier.toFixed(2)}x`;
+      document.getElementById('reactor-mult-pill').textContent = `${state.speedMultiplier.toFixed(2)}x`;
+      const boostPct = ((state.speedMultiplier - 1.0) / Math.max(0.1, state.maxSpeedMultiplier - 1.0)) * 100;
+      document.getElementById('speed-boost-bar').style.width = `${Math.min(100, Math.max(0, boostPct))}%`;
+
+      // 24-Hour Circular SVG Ring (circumference = 2 * pi * 108 = 678.58)
+      const circumference = 678.58;
+      const elapsedRatio = state.cycleStatus === 'completed'
+        ? 1
+        : state.cycleStatus === 'ready'
+        ? 0
+        : (CYCLE_DURATION_SEC - state.cycleRemainingSec) / CYCLE_DURATION_SEC;
+      const dashOffset = circumference * (1 - Math.min(1, Math.max(0, elapsedRatio)));
+      document.getElementById('cycle-progress-ring').style.strokeDashoffset = dashOffset.toFixed(2);
+
+      // Reactor State Visuals
+      const statusTitle = document.getElementById('cycle-status-title');
+      const stateBadge = document.getElementById('cycle-state-badge');
+      const mainLabel = document.getElementById('reactor-main-label');
+      const hintLabel = document.getElementById('reactor-helper-hint');
+      const emblem = document.getElementById('reactor-emblem');
+
+      if (state.cycleStatus === 'completed') {
+        statusTitle.textContent = dict.cycle_completed_title;
+        stateBadge.textContent = '100% DONE';
+        stateBadge.className = 'px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[9px] font-extrabold uppercase animate-pulse';
+        mainLabel.textContent = dict.claim_restart_24h;
+        hintLabel.textContent = dict.reactor_hint_completed;
+        emblem.textContent = '🎁';
+      } else if (state.cycleStatus === 'ready') {
+        statusTitle.textContent = dict.cycle_ready_title;
+        stateBadge.textContent = 'READY';
+        stateBadge.className = 'px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-300 text-[9px] font-extrabold uppercase';
+        mainLabel.textContent = dict.start_24h_mining;
+        hintLabel.textContent = dict.reactor_hint_ready;
+        emblem.textContent = '🐶';
+      } else {
+        statusTitle.textContent = dict.cycle_active_title;
+        stateBadge.textContent = state.speedMultiplier > 1.05 ? 'BOOSTED' : 'ACTIVE';
+        stateBadge.className = state.speedMultiplier > 1.05
+          ? 'px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[9px] font-extrabold uppercase'
+          : 'px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-400 text-[9px] font-extrabold uppercase';
+        mainLabel.textContent = dict.tap_boost_speed;
+        hintLabel.textContent = dict.reactor_hint_active;
+        emblem.textContent = state.speedMultiplier >= 2.0 ? '🔥' : '🐶';
+      }
+
+      // Booster levels & costs
+      document.getElementById('lvl-baseSpeed').textContent = state.boosters.baseSpeed.level;
+      document.getElementById('cost-baseSpeed').textContent = `${state.boosters.baseSpeed.cost.toLocaleString()} $PUPPY`;
+
+      document.getElementById('lvl-maxBoost').textContent = state.boosters.maxBoost.level;
+      document.getElementById('cost-maxBoost').textContent = `${state.boosters.maxBoost.cost.toLocaleString()} $PUPPY`;
+
+      document.getElementById('lvl-tapBonus').textContent = state.boosters.tapBonus.level;
+      document.getElementById('cost-tapBonus').textContent = `${state.boosters.tapBonus.cost.toLocaleString()} $PUPPY`;
+
+      renderLeaderboard();
+    }
+
+    // Background tick every 250ms for smooth 24-hour mining & tap speed multiplier decay
+    setInterval(() => {
+      if (state.cycleStatus === 'active') {
+        // Decrement 24-hour countdown timer by 0.25s
+        state.cycleRemainingSec = Math.max(0, state.cycleRemainingSec - 0.25);
+
+        // Passive mining continues steadily even when user stops tapping, scaled by speedMultiplier
+        const perQuarterSec = (state.basePassiveRate * state.speedMultiplier) / 14400;
+        state.balance += perQuarterSec;
+        state.sessionMined += perQuarterSec;
+
+        // Gradually decay tap speed multiplier back to 1.0x when user stops tapping
+        if (Date.now() - state.lastTapTimestamp > 700 && state.speedMultiplier > 1.0) {
+          state.speedMultiplier = Math.max(1.0, Number((state.speedMultiplier - 0.04).toFixed(2)));
+        }
+
+        // Check if 24-hour cycle reached 00:00:00
+        if (state.cycleRemainingSec <= 0) {
+          state.cycleRemainingSec = 0;
+          state.cycleStatus = 'completed';
+          state.speedMultiplier = 1.0;
+          showToast(
+            state.lang === 'en'
+              ? '24h Mining Complete! Tap the orb to claim & restart.'
+              : 'Mining 24h irarangiye! Kanda ku mupira ufate ibihembo.',
+            '🎉'
+          );
+        }
+      }
+      updateUI();
+    }, 250);
+
+    // Initialize Views
+    window.addEventListener('DOMContentLoaded', () => {
+      renderStreak();
+      renderTasks();
+      renderTransactions();
+      renderLeaderboard();
+      updateUI();
+    });
+  </script>
+</body>
+</html>
