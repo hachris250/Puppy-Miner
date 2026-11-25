@@ -106,24 +106,22 @@
 
     .tab-pane {
       display: none;
-      animation: fadeSlide 0.22s ease-out;
+      animation: fadeSlide 0.2s ease-out;
     }
     .tab-pane.active {
       display: block;
     }
 
     @keyframes fadeSlide {
-      from { opacity: 0; transform: translateY(6px); }
+      from { opacity: 0; transform: translateY(5px); }
       to { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
 <body class="min-h-screen flex justify-center bg-[#06080B]">
 
-  <!-- Mobile App Shell -->
   <div class="w-full max-w-[430px] min-h-screen bg-[#0D1117] relative flex flex-col shadow-2xl border-x border-white/5 overflow-hidden">
 
-    <!-- Ambient Background Glows -->
     <div class="pointer-events-none absolute -top-24 left-1/2 -translate-x-1/2 w-80 h-80 rounded-full bg-amber-500/10 blur-[90px]"></div>
     <div class="pointer-events-none absolute top-1/2 -right-24 w-64 h-64 rounded-full bg-cyan-500/10 blur-[90px]"></div>
 
@@ -141,8 +139,8 @@
         <div>
           <div class="flex items-center gap-1.5">
             <span id="header-username" class="text-sm font-bold text-white tracking-tight">@puppy_miner</span>
-            <span class="px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-md bg-amber-500/15 text-amber-400 border border-amber-500/30">
-              PRO
+            <span id="db-status-badge" class="px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-md bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">
+              DB SYNC
             </span>
           </div>
           <div class="flex items-center gap-1 text-[11px] text-slate-400">
@@ -166,12 +164,8 @@
     <!-- Main Scrollable Viewport -->
     <main class="flex-1 overflow-y-auto no-scrollbar px-4 pt-3 pb-28">
 
-      <!-- ========================================================= -->
-      <!-- TAB 1: HOME (MINING DASHBOARD)                            -->
-      <!-- ========================================================= -->
+      <!-- TAB 1: HOME -->
       <section id="tab-home" class="tab-pane active space-y-4">
-
-        <!-- Total Balance Hero Card -->
         <div class="glass-card rounded-2xl p-4 text-center relative overflow-hidden">
           <div class="text-xs font-medium uppercase tracking-widest text-slate-400 mb-1" data-i18n="total_balance">
             Total Mined Balance
@@ -195,7 +189,6 @@
           </div>
         </div>
 
-        <!-- 24-Hour Cycle Status & Live Speed Multiplier Card -->
         <div class="glass-card rounded-2xl p-3.5 border border-cyan-500/20 space-y-2.5">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
@@ -224,7 +217,6 @@
             </div>
           </div>
 
-          <!-- Tap-to-Boost Speed Multiplier Gauge -->
           <div class="pt-1 border-t border-white/5">
             <div class="flex items-center justify-between text-[11px] mb-1">
               <div class="flex items-center gap-1 font-bold text-amber-400">
@@ -242,7 +234,7 @@
           </div>
         </div>
 
-        <!-- 24-Hour Puppy Mining Reactor -->
+        <!-- Mining Reactor -->
         <div class="relative flex flex-col items-center justify-center py-2">
           <div class="relative w-60 h-60 flex items-center justify-center">
             <svg class="absolute inset-0 w-full h-full -rotate-90 pointer-events-none" viewBox="0 0 240 240">
@@ -292,34 +284,28 @@
         <div class="space-y-3">
           <div class="grid grid-cols-3 gap-2.5">
             <button type="button" onclick="upgradeBooster('baseSpeed')" class="glass-card hover:bg-white/5 rounded-2xl p-3 text-left transition active:scale-95 border border-white/10">
-              <div class="w-8 h-8 rounded-xl bg-amber-500/15 text-amber-400 flex items-center justify-center text-base mb-2">
-                ⚡
-              </div>
+              <div class="w-8 h-8 rounded-xl bg-amber-500/15 text-amber-400 flex items-center justify-center text-base mb-2">⚡</div>
               <div class="text-xs font-bold text-white" data-i18n="boost_base_speed">Base Speed</div>
               <div class="text-[10px] text-slate-400">Lvl <span id="lvl-baseSpeed">1</span> • +60/hr</div>
               <div class="mt-1.5 text-[11px] font-mono font-bold text-amber-400" id="cost-baseSpeed">500 $PUPPY</div>
             </button>
 
             <button type="button" onclick="upgradeBooster('maxBoost')" class="glass-card hover:bg-white/5 rounded-2xl p-3 text-left transition active:scale-95 border border-white/10">
-              <div class="w-8 h-8 rounded-xl bg-cyan-500/15 text-cyan-400 flex items-center justify-center text-base mb-2">
-                🚀
-              </div>
+              <div class="w-8 h-8 rounded-xl bg-cyan-500/15 text-cyan-400 flex items-center justify-center text-base mb-2">🚀</div>
               <div class="text-xs font-bold text-white" data-i18n="boost_max_mult">Max Multiplier</div>
               <div class="text-[10px] text-slate-400">Lvl <span id="lvl-maxBoost">1</span> • +0.5x</div>
               <div class="mt-1.5 text-[11px] font-mono font-bold text-cyan-400" id="cost-maxBoost">750 $PUPPY</div>
             </button>
 
             <button type="button" onclick="upgradeBooster('tapBonus')" class="glass-card hover:bg-white/5 rounded-2xl p-3 text-left transition active:scale-95 border border-white/10">
-              <div class="w-8 h-8 rounded-xl bg-emerald-500/15 text-emerald-400 flex items-center justify-center text-base mb-2">
-                🐾
-              </div>
+              <div class="w-8 h-8 rounded-xl bg-emerald-500/15 text-emerald-400 flex items-center justify-center text-base mb-2">🐾</div>
               <div class="text-xs font-bold text-white" data-i18n="boost_tap_bonus">Tap Bonus</div>
               <div class="text-[10px] text-slate-400">Lvl <span id="lvl-tapBonus">1</span> • +1/tap</div>
               <div class="mt-1.5 text-[11px] font-mono font-bold text-emerald-400" id="cost-tapBonus">1,200 $PUPPY</div>
             </button>
           </div>
 
-          <!-- Top Miners Leaderboard Section -->
+          <!-- Leaderboard -->
           <div class="glass-card rounded-2xl p-3.5 border border-amber-500/15 space-y-2.5">
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-2">
@@ -337,9 +323,7 @@
         </div>
       </section>
 
-      <!-- ========================================================= -->
-      <!-- TAB 2: TASKS                                              -->
-      <!-- ========================================================= -->
+      <!-- TAB 2: TASKS -->
       <section id="tab-tasks" class="tab-pane space-y-4">
         <div class="flex items-center justify-between">
           <div>
@@ -351,7 +335,6 @@
           </div>
         </div>
 
-        <!-- Daily Check-In Streak Card -->
         <div class="glass-card rounded-2xl p-4 border border-amber-500/20">
           <div class="flex items-center justify-between mb-3">
             <div class="flex items-center gap-2">
@@ -365,11 +348,9 @@
               <span data-i18n="checkin_btn">Claim Daily</span>
             </button>
           </div>
-
           <div class="grid grid-cols-7 gap-1.5 text-center" id="streak-grid"></div>
         </div>
 
-        <!-- Expanded Referrals Hub -->
         <div class="glass-card rounded-2xl p-4 border border-emerald-500/25 space-y-3">
           <div class="flex items-center justify-between">
             <div>
@@ -403,7 +384,6 @@
           </div>
         </div>
 
-        <!-- Social & Partner Tasks List -->
         <div class="space-y-2.5">
           <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 px-1" data-i18n="social_tasks_header">
             Social & Community Tasks
@@ -412,553 +392,11 @@
         </div>
       </section>
 
-      <!-- ========================================================= -->
-      <!-- TAB 3: WALLET                                             -->
-      <!-- ========================================================= -->
+      <!-- TAB 3: WALLET -->
       <section id="tab-wallet" class="tab-pane space-y-4">
         <div class="glass-card rounded-2xl p-4 border border-cyan-500/25 relative overflow-hidden">
           <div class="flex items-center justify-between mb-3">
             <div class="flex items-center gap-2.5">
-              <div class="w-10 h-10 rounded-xl bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center text-cyan-400 font-black text-lg">
-                💎
-              </div>
+              <div class="w-10 h-10 rounded-xl bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center text-cyan-400 font-black text-lg">💎</div>
               <div>
-                <h2 class="text-sm font-bold text-white" data-i18n="wallet_title">TON & Crypto Wallet</h2>
-                <p id="wallet-status-text" class="text-[11px] text-slate-400" data-i18n="wallet_disconnected">
-                  Connect Tonkeeper or Telegram Wallet
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <button id="connect-wallet-btn" type="button" onclick="toggleWalletConnection()" class="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 hover:opacity-95 text-slate-950 font-extrabold text-xs tracking-wide shadow-lg shadow-cyan-500/20 transition active:scale-98 flex items-center justify-center gap-2">
-            <span>🔗</span>
-            <span id="connect-wallet-label" data-i18n="connect_ton_btn">Connect TON Wallet</span>
-          </button>
-        </div>
-
-        <div class="glass-card rounded-2xl p-4 space-y-3">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-semibold text-slate-400" data-i18n="portfolio_overview">Portfolio Overview</span>
-            <span class="text-xs font-mono text-emerald-400 font-bold">1 $PUPPY = 2.8 RWF</span>
-          </div>
-
-          <div class="grid grid-cols-2 gap-2.5">
-            <div class="p-3 rounded-xl bg-white/[0.03] border border-white/5">
-              <div class="text-[11px] text-slate-400" data-i18n="available_bal">Available Balance</div>
-              <div class="text-base font-black font-mono text-white mt-0.5"><span id="wallet-avail-balance">0</span></div>
-              <div class="text-[10px] text-amber-400 font-semibold">$PUPPY</div>
-            </div>
-            <div class="p-3 rounded-xl bg-white/[0.03] border border-white/5">
-              <div class="text-[11px] text-slate-400" data-i18n="staked_bal">Staked / Locked</div>
-              <div class="text-base font-black font-mono text-cyan-300 mt-0.5">0</div>
-              <div class="text-[10px] text-emerald-400 font-semibold">+18% APY</div>
-            </div>
-          </div>
-
-          <div class="grid grid-cols-2 gap-2.5 pt-1">
-            <button type="button" onclick="openWithdrawModal()" class="py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:opacity-95 text-slate-950 text-xs font-extrabold shadow-lg shadow-amber-500/20 transition active:scale-95">
-              📤 <span data-i18n="withdraw_btn">Withdraw</span>
-            </button>
-            <button type="button" onclick="handleWalletAction('swap')" class="py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-bold text-cyan-300 transition active:scale-95">
-              🔄 <span data-i18n="swap_btn">Swap to TON</span>
-            </button>
-          </div>
-        </div>
-
-        <div class="space-y-2.5">
-          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 px-1" data-i18n="tx_history">
-            Recent Activity
-          </h3>
-          <div id="tx-history-list" class="space-y-2"></div>
-        </div>
-      </section>
-
-      <!-- ========================================================= -->
-      <!-- TAB 4: PROFILE                                            -->
-      <!-- ========================================================= -->
-      <section id="tab-profile" class="tab-pane space-y-4">
-        <div class="glass-card rounded-2xl p-4 flex items-center gap-3.5">
-          <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-amber-500 via-yellow-400 to-cyan-400 p-[2px] shrink-0">
-            <div class="w-full h-full rounded-2xl bg-[#161B22] flex items-center justify-center text-3xl font-black text-amber-400">
-              🐶
-            </div>
-          </div>
-          <div class="flex-1 min-w-0">
-            <div class="flex items-center gap-2">
-              <h2 id="profile-display-name" class="text-base font-extrabold text-white truncate">Puppy Miner</h2>
-              <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
-                Verified
-              </span>
-            </div>
-            <p id="profile-tg-id" class="text-xs text-slate-400 font-mono">TG ID: 849201743</p>
-            <div class="mt-2">
-              <div class="flex justify-between text-[10px] font-semibold text-slate-300 mb-1">
-                <span>Gold League (Lvl 4)</span>
-                <span id="profile-xp-label">0.0K / 25K</span>
-              </div>
-              <div class="w-full h-1.5 rounded-full bg-slate-800 overflow-hidden">
-                <div id="profile-xp-bar" class="h-full rounded-full bg-gradient-to-r from-amber-500 to-yellow-300" style="width: 0%;"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="glass-card rounded-2xl p-4 border border-emerald-500/20 space-y-3">
-          <div class="flex items-center justify-between">
-            <div>
-              <h3 class="text-sm font-bold text-white" data-i18n="invite_friends">Invite Friends & Earn</h3>
-              <p class="text-[11px] text-slate-400" data-i18n="invite_desc">Get +1,000 $PUPPY + 10% of friends' mining!</p>
-            </div>
-            <span class="text-2xl">🎁</span>
-          </div>
-
-          <div class="grid grid-cols-2 gap-2.5 text-center">
-            <div class="p-2.5 rounded-xl bg-white/[0.03] border border-white/5">
-              <div id="profile-invited-val" class="text-lg font-black text-white font-mono">0</div>
-              <div class="text-[10px] text-slate-400" data-i18n="invited_count">Friends Invited</div>
-            </div>
-            <div class="p-2.5 rounded-xl bg-white/[0.03] border border-white/5">
-              <div class="text-lg font-black text-emerald-400 font-mono" id="profile-ref-earned">+0</div>
-              <div class="text-[10px] text-slate-400" data-i18n="ref_earnings">Referral Bonus ($PUPPY)</div>
-            </div>
-          </div>
-
-          <div class="flex items-center gap-2 p-2 rounded-xl bg-[#0D1117] border border-white/10">
-            <input id="ref-link-input" type="text" readonly value="https://t.me/DonCoinApp_bot/app?startapp=ref_849201" class="bg-transparent text-[11px] font-mono text-slate-300 flex-1 outline-none px-1" />
-            <button type="button" onclick="copyReferralLink('ref-link-input')" class="px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs transition active:scale-95 shrink-0">
-              <span data-i18n="copy_btn">Copy</span>
-            </button>
-          </div>
-        </div>
-
-        <div class="glass-card rounded-2xl divide-y divide-white/5">
-          <div class="p-3.5 flex items-center justify-between">
-            <div class="flex items-center gap-2.5">
-              <span class="text-base">🌍</span>
-              <div>
-                <div class="text-xs font-bold text-white" data-i18n="setting_lang">Language / Ururimi</div>
-                <div class="text-[11px] text-slate-400">English / Ikinyarwanda</div>
-              </div>
-            </div>
-            <button type="button" onclick="toggleLanguage()" class="px-3 py-1.5 rounded-xl bg-cyan-500/15 border border-cyan-500/30 text-xs font-bold text-cyan-300 active:scale-95 transition">
-              <span id="settings-lang-label">English (EN)</span>
-            </button>
-          </div>
-
-          <div class="p-3.5 flex items-center justify-between">
-            <div class="flex items-center gap-2.5">
-              <span class="text-base">📳</span>
-              <div>
-                <div class="text-xs font-bold text-white" data-i18n="setting_haptic">Haptic Vibration</div>
-                <div class="text-[11px] text-slate-400" data-i18n="setting_haptic_sub">Vibrate on mining taps</div>
-              </div>
-            </div>
-            <button id="toggle-haptic" type="button" onclick="toggleSwitch(this)" class="w-11 h-6 rounded-full bg-emerald-500 p-0.5 transition-colors flex items-center justify-end">
-              <span class="w-5 h-5 rounded-full bg-white shadow"></span>
-            </button>
-          </div>
-
-          <div class="p-3.5 flex items-center justify-between">
-            <div class="flex items-center gap-2.5">
-              <span class="text-base">🔊</span>
-              <div>
-                <div class="text-xs font-bold text-white" data-i18n="setting_sound">Synth Sound Effects</div>
-                <div class="text-[11px] text-slate-400" data-i18n="setting_sound_sub">Audio feedback on tap & claim</div>
-              </div>
-            </div>
-            <button id="toggle-sound" type="button" onclick="toggleSwitch(this)" class="w-11 h-6 rounded-full bg-emerald-500 p-0.5 transition-colors flex items-center justify-end">
-              <span class="w-5 h-5 rounded-full bg-white shadow"></span>
-            </button>
-          </div>
-        </div>
-      </section>
-
-    </main>
-
-    <!-- Withdraw Modal -->
-    <div id="withdraw-modal" class="fixed inset-0 z-50 hidden items-end sm:items-center justify-center bg-black/75 backdrop-blur-sm p-3">
-      <div class="w-full max-w-[410px] glass-card bg-[#131922] border border-white/15 rounded-3xl p-4 space-y-3.5 shadow-2xl">
-        <div class="flex items-center justify-between border-b border-white/10 pb-2.5">
-          <div class="flex items-center gap-2">
-            <span class="text-lg">💸</span>
-            <h3 class="text-sm font-extrabold text-white" data-i18n="withdraw_modal_title">Withdraw Funds ($PUPPY)</h3>
-          </div>
-          <button type="button" onclick="closeWithdrawModal()" class="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 flex items-center justify-center text-xs font-bold">
-            ✕
-          </button>
-        </div>
-
-        <div class="grid grid-cols-2 gap-2">
-          <button id="method-momo-btn" type="button" onclick="selectWithdrawMethod('momo')" class="p-2.5 rounded-xl border border-amber-400 bg-amber-500/15 text-left transition">
-            <div class="text-xs font-extrabold text-amber-300">📱 Mobile Money</div>
-            <div class="text-[10px] text-slate-300">MTN MoMo / Airtel</div>
-          </button>
-          <button id="method-ton-btn" type="button" onclick="selectWithdrawMethod('ton')" class="p-2.5 rounded-xl border border-white/10 bg-white/5 text-left transition">
-            <div class="text-xs font-extrabold text-cyan-300">💎 TON Wallet</div>
-            <div class="text-[10px] text-slate-400">Tonkeeper / Telegram</div>
-          </button>
-        </div>
-
-        <div id="momo-provider-box" class="flex gap-2">
-          <button type="button" onclick="selectMomoNetwork('MTN MoMo')" id="net-mtn" class="flex-1 py-1.5 rounded-lg bg-yellow-400/20 border border-yellow-400 text-yellow-300 text-[11px] font-extrabold">
-            MTN MoMo
-          </button>
-          <button type="button" onclick="selectMomoNetwork('Airtel Money')" id="net-airtel" class="flex-1 py-1.5 rounded-lg bg-white/5 border border-white/10 text-slate-400 text-[11px] font-bold">
-            Airtel Money
-          </button>
-        </div>
-
-        <div>
-          <label id="withdraw-dest-label" class="block text-[11px] font-semibold text-slate-300 mb-1" data-i18n="momo_phone_label">
-            Mobile Money Number (078... / 079... / 072...)
-          </label>
-          <input id="withdraw-dest-input" type="text" placeholder="0788 123 456" class="w-full px-3 py-2.5 rounded-xl bg-[#0B0F15] border border-white/15 text-xs font-mono text-white focus:border-amber-400 outline-none" />
-        </div>
-
-        <div>
-          <div class="flex justify-between text-[11px] mb-1">
-            <span class="text-slate-300 font-semibold" data-i18n="withdraw_amt_label">Amount of $PUPPY to withdraw</span>
-            <button type="button" onclick="fillMaxWithdraw()" class="text-amber-400 font-bold hover:underline">MAX (<span id="modal-max-balance">0</span>)</button>
-          </div>
-          <input id="withdraw-amount-input" type="number" oninput="updateWithdrawPreview()" placeholder="5000" class="w-full px-3 py-2.5 rounded-xl bg-[#0B0F15] border border-white/15 text-xs font-mono text-white focus:border-amber-400 outline-none" />
-          <div class="mt-1.5 flex items-center justify-between text-[11px] text-slate-400">
-            <span data-i18n="you_will_receive">You will receive:</span>
-            <span id="withdraw-receive-preview" class="font-mono font-bold text-emerald-400">0 RWF</span>
-          </div>
-        </div>
-
-        <button type="button" onclick="submitWithdrawal()" class="w-full py-3 rounded-xl bg-gradient-to-r from-amber-500 to-emerald-500 text-slate-950 font-extrabold text-xs shadow-lg active:scale-95 transition">
-          <span data-i18n="confirm_withdraw_btn">Confirm Withdrawal</span>
-        </button>
-      </div>
-    </div>
-
-    <!-- Toast Notification Banner -->
-    <div id="toast-banner" class="pointer-events-none fixed bottom-24 left-1/2 -translate-x-1/2 z-50 opacity-0 translate-y-3 transition-all duration-300">
-      <div class="px-4 py-2.5 rounded-full bg-[#1E2633]/95 backdrop-blur-md border border-amber-400/40 shadow-2xl flex items-center gap-2 text-xs font-bold text-white whitespace-nowrap">
-        <span id="toast-icon">✨</span>
-        <span id="toast-message">Action completed!</span>
-      </div>
-    </div>
-
-    <!-- Bottom 4-Tab Navigation Bar -->
-    <nav class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] z-40 bg-[#11161F]/95 backdrop-blur-xl border-t border-white/10 px-2 py-2">
-      <div class="grid grid-cols-4 gap-1">
-        <button type="button" onclick="switchTab('home')" data-tab="home" class="nav-btn active flex flex-col items-center justify-center py-1.5 rounded-xl transition-all text-amber-400 bg-amber-500/10">
-          <svg class="w-5 h-5 mb-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
-          </svg>
-          <span class="text-[11px] font-bold" data-i18n="nav_home">Home</span>
-        </button>
-
-        <button type="button" onclick="switchTab('tasks')" data-tab="tasks" class="nav-btn flex flex-col items-center justify-center py-1.5 rounded-xl transition-all text-slate-400 hover:text-slate-200">
-          <div class="relative">
-            <svg class="w-5 h-5 mb-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-            </svg>
-            <span id="task-nav-dot" class="absolute -top-0.5 -right-1 w-2 h-2 rounded-full bg-amber-400"></span>
-          </div>
-          <span class="text-[11px] font-semibold" data-i18n="nav_tasks">Tasks</span>
-        </button>
-
-        <button type="button" onclick="switchTab('wallet')" data-tab="wallet" class="nav-btn flex flex-col items-center justify-center py-1.5 rounded-xl transition-all text-slate-400 hover:text-slate-200">
-          <svg class="w-5 h-5 mb-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-          </svg>
-          <span class="text-[11px] font-semibold" data-i18n="nav_wallet">Wallet</span>
-        </button>
-
-        <button type="button" onclick="switchTab('profile')" data-tab="profile" class="nav-btn flex flex-col items-center justify-center py-1.5 rounded-xl transition-all text-slate-400 hover:text-slate-200">
-          <svg class="w-5 h-5 mb-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-          </svg>
-          <span class="text-[11px] font-semibold" data-i18n="nav_profile">Profile</span>
-        </button>
-      </div>
-    </nav>
-
-  </div>
-
-  <script>
-    // =========================================================
-    // SUPABASE CONFIGURATION & CLIENT
-    // =========================================================
-    const SUPABASE_URL = 'https://ucpnxhymsudssnkzcczz.supabase.co';
-    const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_68WiMayny7vJ304FuMfocQ_wsZt6BlM';
-    const db = window.supabase
-      ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY)
-      : null;
-
-    const CYCLE_DURATION_SEC = 24 * 60 * 60;
-
-    const state = {
-      tgId: 849201743,
-      username: '@puppy_miner',
-      firstName: 'Puppy Miner',
-      lang: 'en',
-      balance: 0.00,
-      tapPower: 2,
-      basePassiveRate: 180,
-      speedMultiplier: 1.0,
-      maxSpeedMultiplier: 3.0,
-      lastTapTimestamp: 0,
-      cycleStatus: 'ready', // 'ready' | 'active' | 'completed'
-      cycleStartedAt: null,
-      cycleRemainingSec: CYCLE_DURATION_SEC,
-      sessionMined: 0.00,
-      dailyStreak: 0,
-      lastCheckinDate: null,
-      dailyClaimedToday: false,
-      invitedCount: 0,
-      unclaimedRef: 0,
-      totalRefEarned: 0,
-      walletConnected: false,
-      walletAddress: 'UQD4...9kL2',
-      hapticEnabled: true,
-      soundEnabled: true,
-      withdrawMethod: 'momo',
-      momoNetwork: 'MTN MoMo',
-      boosters: {
-        baseSpeed: { level: 1, cost: 500 },
-        maxBoost: { level: 1, cost: 750 },
-        tapBonus: { level: 1, cost: 1200 }
-      },
-      leaderboard: [],
-      tasks: [
-        { id: 1, icon: '📢', titleEn: 'Join Official Telegram Channel', titleRw: 'Injira kuri Channel ya Telegram', reward: 1000, status: 'start' },
-        { id: 2, icon: '🐦', titleEn: 'Follow @PuppyMiner on X (Twitter)', titleRw: 'Kurikira @PuppyMiner kuri X', reward: 750, status: 'start' },
-        { id: 3, icon: '▶️', titleEn: 'Watch Mining Guide on YouTube', titleRw: 'Reba Video yuko bakora Mining', reward: 1200, status: 'start' },
-        { id: 4, icon: '💎', titleEn: 'Connect TON Wallet', titleRw: 'Huza Wallet yawe ya TON', reward: 2000, status: 'start' },
-        { id: 5, icon: '🤝', titleEn: 'Invite 3 Active Friends', titleRw: 'Tumira inshuti 3 zikora Mining', reward: 3000, status: 'start' }
-      ],
-      transactions: []
-    };
-
-    const i18n = {
-      en: {
-        gold_league: 'Puppy Pack • Lvl 4',
-        total_balance: 'Total Mined Balance',
-        cycle_active_title: '24h Mining In Progress',
-        cycle_completed_title: '24h Mining Completed!',
-        cycle_ready_title: 'Ready to Start 24h Mining',
-        session_mined: 'Session Mined:',
-        demo_finish_btn: 'Test End 24h',
-        speed_boost_label: 'Tap Speed Multiplier',
-        tap_boost_speed: 'TAP TO BOOST SPEED',
-        start_24h_mining: 'START 24H MINING',
-        claim_restart_24h: 'CLAIM & RESTART 24H',
-        reactor_hint_active: 'Tap rapidly to boost mining speed! Keeps mining 24h even if you stop.',
-        reactor_hint_completed: '24-hour cycle finished! Tap the orb to claim rewards & start the next 24h.',
-        reactor_hint_ready: 'Tap the orb to start your 24-hour automated Puppy mining cycle.',
-        boost_base_speed: 'Base Speed',
-        boost_max_mult: 'Max Multiplier',
-        boost_tap_bonus: 'Tap Bonus',
-        leaderboard_title: 'Top Miners Leaderboard',
-        live_badge: 'LIVE',
-        tasks_title: 'Earn More $PUPPY',
-        tasks_subtitle: 'Complete daily missions & social tasks for instant rewards.',
-        daily_checkin: 'Daily Check-in',
-        daily_streak_sub: '7-day streak unlocks 5,000 $PUPPY bonus',
-        checkin_btn: 'Claim Daily',
-        checkin_done: 'Claimed ✓',
-        ref_hub_title: 'Referrals Hub',
-        social_tasks_header: 'Social & Community Tasks',
-        wallet_title: 'TON & Crypto Wallet',
-        wallet_disconnected: 'Connect Tonkeeper or Telegram Wallet',
-        connect_ton_btn: 'Connect TON Wallet',
-        portfolio_overview: 'Portfolio Overview',
-        available_bal: 'Available Balance',
-        staked_bal: 'Staked / Locked',
-        withdraw_btn: 'Withdraw',
-        swap_btn: 'Swap to TON',
-        tx_history: 'Recent Activity',
-        invite_friends: 'Invite Friends & Earn',
-        invite_desc: "Get +1,000 $PUPPY + 10% of friends' mining!",
-        invited_count: 'Friends Invited',
-        ref_earnings: 'Referral Bonus ($PUPPY)',
-        copy_btn: 'Copy',
-        setting_lang: 'Language / Ururimi',
-        setting_haptic: 'Haptic Vibration',
-        setting_haptic_sub: 'Vibrate on mining taps',
-        setting_sound: 'Synth Sound Effects',
-        setting_sound_sub: 'Audio feedback on tap & claim',
-        nav_home: 'Home',
-        nav_tasks: 'Tasks',
-        nav_wallet: 'Wallet',
-        nav_profile: 'Profile',
-        task_start: 'Start',
-        task_verify: 'Verify',
-        task_claim: 'Claim',
-        task_done: 'Done',
-        withdraw_modal_title: 'Withdraw Funds ($PUPPY)',
-        momo_phone_label: 'Mobile Money Number (078... / 079... / 072...)',
-        ton_addr_label: 'TON Wallet Address (Tonkeeper / Telegram)',
-        withdraw_amt_label: 'Amount of $PUPPY to withdraw',
-        you_will_receive: 'You will receive:',
-        confirm_withdraw_btn: 'Confirm Withdrawal'
-      },
-      rw: {
-        gold_league: 'Puppy Pack • Lvl 4',
-        total_balance: 'Amafaranga Yose Wabonye',
-        cycle_active_title: 'Mining y’Amasaha 24 Iri Gukora',
-        cycle_completed_title: 'Mining y’Amasaha 24 Yarangiye!',
-        cycle_ready_title: 'Witeguye Gutangira Mining 24h',
-        session_mined: 'Ayacukuwe muri iyi 24h:',
-        demo_finish_btn: 'Gerageza 24h Zirangiye',
-        speed_boost_label: 'Umuvuduko wo Gukanda (Speed)',
-        tap_boost_speed: 'KANDA WONGERE UMUYAGA',
-        start_24h_mining: 'TANGIRA MINING 24H',
-        claim_restart_24h: 'FATA & ONGERA UTANGIRE 24H',
-        reactor_hint_active: 'Kanda kenshi wongere umuvuduko! Niyo wahagarara ikomeza gukora amasaha 24.',
-        reactor_hint_completed: 'Amasaha 24 yarangiye! Kanda ku mupira ufate ibihembo utangire andi masaha 24.',
-        reactor_hint_ready: 'Kanda ku mupira utangize mining yikoresha mu gihe cy’amasaha 24.',
-        boost_base_speed: 'Umuvuduko Shingiro',
-        boost_max_mult: 'Inshuro Ntarengwa',
-        boost_tap_bonus: 'Inyungu yo Gukanda',
-        leaderboard_title: 'Urutonde rw’Abacukuzi ba Mbere',
-        live_badge: 'LIVE',
-        tasks_title: 'Korera Andi $PUPPY',
-        tasks_subtitle: 'Kora ama-task ya buri munsi ubone ibihembo ako kanya.',
-        daily_checkin: 'Ibihembo bya Buri Munsi',
-        daily_streak_sub: 'Iminsi 7 ikurikirana ihesha 5,000 $PUPPY',
-        checkin_btn: 'Fata Uyu Munsi',
-        checkin_done: 'Byafashwe ✓',
-        ref_hub_title: 'Abatumiwe (Referrals Hub)',
-        social_tasks_header: 'Ama-Task yo ku Mbuga Nkoranyambaga',
-        wallet_title: 'Wallet ya TON & Crypto',
-        wallet_disconnected: 'Huza Tonkeeper cyangwa Telegram Wallet',
-        connect_ton_btn: 'Huza TON Wallet',
-        portfolio_overview: 'Incamake y’Umutungo',
-        available_bal: 'Ayabonetse Yose',
-        staked_bal: 'Ayabitswe (Staked)',
-        withdraw_btn: 'Kubikuza',
-        swap_btn: 'Kuvunja muri TON',
-        tx_history: 'Ibikorwa Biheruka',
-        invite_friends: 'Tumira Inshuti Uhembwe',
-        invite_desc: 'Habwa +1,000 $PUPPY + 10% by’ibyo inshuti zicukura!',
-        invited_count: 'Inshuti Watumiye',
-        ref_earnings: 'Ibihembo by’Inshuti ($PUPPY)',
-        copy_btn: 'Koporora',
-        setting_lang: 'Ururimi / Language',
-        setting_haptic: 'Kunyeganyega (Vibration)',
-        setting_haptic_sub: 'Iyo ukanze ukora mining',
-        setting_sound: 'Amajwi yo Gukanda',
-        setting_sound_sub: 'Amajwi igihe ukora mining',
-        nav_home: 'Ahabanza',
-        nav_tasks: 'Ama-Task',
-        nav_wallet: 'Ikofi',
-        nav_profile: 'Umwirondoro',
-        task_start: 'Tangira',
-        task_verify: 'Emeza',
-        task_claim: 'Fata',
-        task_done: 'Byakozwe',
-        withdraw_modal_title: 'Kubikuza Amafaranga ($PUPPY)',
-        momo_phone_label: 'Nimero ya Telefoni (078... / 079... / 072...)',
-        ton_addr_label: 'Aderesi ya TON Wallet (Tonkeeper / Telegram)',
-        withdraw_amt_label: 'Umubare wa $PUPPY ubikuza',
-        you_will_receive: 'Uzabona:',
-        confirm_withdraw_btn: 'Emeza Kubikuza'
-      }
-    };
-
-    // =========================================================
-    // SUPABASE DATABASE SYNC FUNCTIONS
-    // =========================================================
-    function calcBoosterCost(baseCost, level) {
-      let cost = baseCost;
-      for (let i = 1; i < level; i++) {
-        cost = Math.round(cost * 1.65);
-      }
-      return cost;
-    }
-
-    function getTodayISO() {
-      return new Date().toISOString().slice(0, 10);
-    }
-
-    async function syncUserWithDatabase(tgUser, startParam = '') {
-      if (!db) return;
-      try {
-        const tgId = tgUser && tgUser.id ? Number(tgUser.id) : state.tgId;
-        const username = tgUser && tgUser.username ? `@${tgUser.username}` : `@user_${tgId}`;
-        const firstName = tgUser && tgUser.first_name ? tgUser.first_name : 'Puppy Miner';
-
-        state.tgId = tgId;
-        state.username = username;
-        state.firstName = firstName;
-
-        let referrerId = null;
-        if (startParam && startParam.startsWith('ref_')) {
-          const parsedRef = Number(startParam.replace('ref_', '').trim());
-          if (parsedRef && parsedRef !== tgId) {
-            referrerId = parsedRef;
-          }
-        }
-
-        let { data: existingUser } = await db
-          .from('users')
-          .select('*')
-          .eq('tg_id', tgId)
-          .maybeSingle();
-
-        if (!existingUser) {
-          const { data: insertedUser } = await db
-            .from('users')
-            .insert([{
-              tg_id: tgId,
-              username: username,
-              first_name: firstName,
-              balance: 0.00,
-              tap_power: 2,
-              base_passive_rate: 180,
-              max_speed_multiplier: 3.00,
-              cycle_status: 'ready',
-              session_mined: 0.00,
-              booster_base_lvl: 1,
-              booster_max_lvl: 1,
-              booster_tap_lvl: 1,
-              referred_by: referrerId
-            }])
-            .select()
-            .single();
-          existingUser = insertedUser;
-
-          if (referrerId) {
-            await db.rpc && Promise.resolve();
-            const { data: refOwner } = await db
-              .from('users')
-              .select('tg_id, unclaimed_ref_bonus, total_ref_earned')
-              .eq('tg_id', referrerId)
-              .maybeSingle();
-            if (refOwner) {
-              await db
-                .from('users')
-                .update({
-                  unclaimed_ref_bonus: Number(refOwner.unclaimed_ref_bonus || 0) + 1000,
-                  total_ref_earned: Number(refOwner.total_ref_earned || 0) + 1000,
-                  updated_at: new Date().toISOString()
-                })
-                .eq('tg_id', referrerId);
-            }
-          }
-        } else {
-          await db
-            .from('users')
-            .update({
-              username: username,
-              first_name: firstName,
-              updated_at: new Date().toISOString()
-            })
-            .eq('tg_id', tgId);
-        }
-
-        if (existingUser) {
-          state.balance = Number(existingUser.balance || 0);
-          state.tapPower = Number(existingUser.tap_power || 2);
-          state.basePassiveRate = Number(existingUser.base_passive_rate || 180);
-          state.maxSpeedMultiplier = Number(existingUser.max_speed_multiplier || 3.0);
-          state.cycleStatus = existingUser.cycle_status || 'ready';
-          state.cycleStartedAt = existingUser.cycle_started_at || null;
-          state.sessionMined = Number(existingUser.session_mined || 0);
-          state.dailyStreak = Number(existingUser.daily_streak
+                <h2 class="text-sm font-bold text-white" data-i
