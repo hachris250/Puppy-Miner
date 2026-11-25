@@ -136,7 +136,7 @@
               🐶
             </div>
           </div>
-          <span class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-400 ring-2 ring-[#0D1117]"></span>
+          <span id="db-status-dot" class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-400 ring-2 ring-[#0D1117]"></span>
         </div>
         <div>
           <div class="flex items-center gap-1.5">
@@ -166,12 +166,8 @@
     <!-- Main Scrollable Viewport -->
     <main class="flex-1 overflow-y-auto no-scrollbar px-4 pt-3 pb-28">
 
-      <!-- ========================================================= -->
-      <!-- TAB 1: HOME (MINING DASHBOARD)                            -->
-      <!-- ========================================================= -->
+      <!-- TAB 1: HOME -->
       <section id="tab-home" class="tab-pane active space-y-4">
-
-        <!-- Total Balance Hero Card -->
         <div class="glass-card rounded-2xl p-4 text-center relative overflow-hidden">
           <div class="text-xs font-medium uppercase tracking-widest text-slate-400 mb-1" data-i18n="total_balance">
             Total Mined Balance
@@ -195,7 +191,6 @@
           </div>
         </div>
 
-        <!-- 24-Hour Cycle Status & Live Speed Multiplier Card -->
         <div class="glass-card rounded-2xl p-3.5 border border-cyan-500/20 space-y-2.5">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
@@ -224,7 +219,6 @@
             </div>
           </div>
 
-          <!-- Tap-to-Boost Speed Multiplier Gauge -->
           <div class="pt-1 border-t border-white/5">
             <div class="flex items-center justify-between text-[11px] mb-1">
               <div class="flex items-center gap-1 font-bold text-amber-400">
@@ -242,7 +236,6 @@
           </div>
         </div>
 
-        <!-- 24-Hour Puppy Mining Reactor -->
         <div class="relative flex flex-col items-center justify-center py-2">
           <div class="relative w-60 h-60 flex items-center justify-center">
             <svg class="absolute inset-0 w-full h-full -rotate-90 pointer-events-none" viewBox="0 0 240 240">
@@ -288,7 +281,6 @@
           </p>
         </div>
 
-        <!-- Boosters Grid -->
         <div class="space-y-3">
           <div class="grid grid-cols-3 gap-2.5">
             <button type="button" onclick="upgradeBooster('baseSpeed')" class="glass-card hover:bg-white/5 rounded-2xl p-3 text-left transition active:scale-95 border border-white/10">
@@ -319,7 +311,6 @@
             </button>
           </div>
 
-          <!-- Top Miners Leaderboard Section -->
           <div class="glass-card rounded-2xl p-3.5 border border-amber-500/15 space-y-2.5">
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-2">
@@ -337,9 +328,7 @@
         </div>
       </section>
 
-      <!-- ========================================================= -->
-      <!-- TAB 2: TASKS                                              -->
-      <!-- ========================================================= -->
+      <!-- TAB 2: TASKS -->
       <section id="tab-tasks" class="tab-pane space-y-4">
         <div class="flex items-center justify-between">
           <div>
@@ -351,7 +340,6 @@
           </div>
         </div>
 
-        <!-- Daily Check-In Streak Card -->
         <div class="glass-card rounded-2xl p-4 border border-amber-500/20">
           <div class="flex items-center justify-between mb-3">
             <div class="flex items-center gap-2">
@@ -369,7 +357,6 @@
           <div class="grid grid-cols-7 gap-1.5 text-center" id="streak-grid"></div>
         </div>
 
-        <!-- Expanded Referrals Hub -->
         <div class="glass-card rounded-2xl p-4 border border-emerald-500/25 space-y-3">
           <div class="flex items-center justify-between">
             <div>
@@ -403,7 +390,6 @@
           </div>
         </div>
 
-        <!-- Social & Partner Tasks List -->
         <div class="space-y-2.5">
           <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 px-1" data-i18n="social_tasks_header">
             Social & Community Tasks
@@ -412,9 +398,7 @@
         </div>
       </section>
 
-      <!-- ========================================================= -->
-      <!-- TAB 3: WALLET                                             -->
-      <!-- ========================================================= -->
+      <!-- TAB 3: WALLET -->
       <section id="tab-wallet" class="tab-pane space-y-4">
         <div class="glass-card rounded-2xl p-4 border border-cyan-500/25 relative overflow-hidden">
           <div class="flex items-center justify-between mb-3">
@@ -474,9 +458,7 @@
         </div>
       </section>
 
-      <!-- ========================================================= -->
-      <!-- TAB 4: PROFILE                                            -->
-      <!-- ========================================================= -->
+      <!-- TAB 4: PROFILE -->
       <section id="tab-profile" class="tab-pane space-y-4">
         <div class="glass-card rounded-2xl p-4 flex items-center gap-3.5">
           <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-amber-500 via-yellow-400 to-cyan-400 p-[2px] shrink-0">
@@ -682,13 +664,19 @@
 
   <script>
     // =========================================================
-    // SUPABASE CONFIGURATION & CLIENT
+    // SUPABASE CONFIGURATION & LOCAL BACKUP STORAGE
     // =========================================================
     const SUPABASE_URL = 'https://ucpnxhymsudssnkzcczz.supabase.co';
     const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_68WiMayny7vJ304FuMfocQ_wsZt6BlM';
-    const db = window.supabase
-      ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY)
-      : null;
+
+    let db = null;
+    try {
+      if (window.supabase && typeof window.supabase.createClient === 'function') {
+        db = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+      }
+    } catch (e) {
+      db = null;
+    }
 
     const CYCLE_DURATION_SEC = 24 * 60 * 60;
 
@@ -703,7 +691,7 @@
       speedMultiplier: 1.0,
       maxSpeedMultiplier: 3.0,
       lastTapTimestamp: 0,
-      cycleStatus: 'ready', // 'ready' | 'active' | 'completed'
+      cycleStatus: 'ready',
       cycleStartedAt: null,
       cycleRemainingSec: CYCLE_DURATION_SEC,
       sessionMined: 0.00,
@@ -862,6 +850,101 @@
       }
     };
 
+    function getStorageKey(tgId) {
+      return `puppy_miner_state_${tgId}`;
+    }
+
+    function saveLocalBackup() {
+      try {
+        const payload = {
+          tgId: state.tgId,
+          username: state.username,
+          firstName: state.firstName,
+          lang: state.lang,
+          balance: state.balance,
+          tapPower: state.tapPower,
+          basePassiveRate: state.basePassiveRate,
+          maxSpeedMultiplier: state.maxSpeedMultiplier,
+          cycleStatus: state.cycleStatus,
+          cycleStartedAt: state.cycleStartedAt,
+          sessionMined: state.sessionMined,
+          dailyStreak: state.dailyStreak,
+          lastCheckinDate: state.lastCheckinDate,
+          invitedCount: state.invitedCount,
+          unclaimedRef: state.unclaimedRef,
+          totalRefEarned: state.totalRefEarned,
+          walletConnected: state.walletConnected,
+          walletAddress: state.walletAddress,
+          boosters: state.boosters,
+          claimedTaskIds: state.tasks.filter(t => t.status === 'claimed').map(t => t.id),
+          transactions: state.transactions.slice(0, 10),
+          savedAt: Date.now()
+        };
+        localStorage.setItem(getStorageKey(state.tgId), JSON.stringify(payload));
+      } catch (e) {}
+    }
+
+    function loadLocalBackup(tgId) {
+      try {
+        const raw = localStorage.getItem(getStorageKey(tgId));
+        if (!raw) return false;
+        const p = JSON.parse(raw);
+        if (!p) return false;
+
+        state.balance = Number(p.balance || 0);
+        state.tapPower = Number(p.tapPower || 2);
+        state.basePassiveRate = Number(p.basePassiveRate || 180);
+        state.maxSpeedMultiplier = Number(p.maxSpeedMultiplier || 3.0);
+        state.cycleStatus = p.cycleStatus || 'ready';
+        state.cycleStartedAt = p.cycleStartedAt || null;
+        state.sessionMined = Number(p.sessionMined || 0);
+        state.dailyStreak = Number(p.dailyStreak || 0);
+        state.lastCheckinDate = p.lastCheckinDate || null;
+        state.dailyClaimedToday = state.lastCheckinDate === getTodayISO();
+        state.invitedCount = Number(p.invitedCount || 0);
+        state.unclaimedRef = Number(p.unclaimedRef || 0);
+        state.totalRefEarned = Number(p.totalRefEarned || 0);
+        state.walletConnected = Boolean(p.walletConnected);
+        state.walletAddress = p.walletAddress || 'UQD4...9kL2';
+        if (p.boosters) {
+          state.boosters = p.boosters;
+        }
+        if (Array.isArray(p.claimedTaskIds)) {
+          const claimedSet = new Set(p.claimedTaskIds.map(Number));
+          state.tasks.forEach(t => {
+            if (claimedSet.has(t.id)) t.status = 'claimed';
+          });
+        }
+        if (Array.isArray(p.transactions)) {
+          state.transactions = p.transactions;
+        }
+
+        recomputeCycleClock();
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }
+
+    function recomputeCycleClock() {
+      if (state.cycleStatus === 'active' && state.cycleStartedAt) {
+        const elapsedSec = Math.max(
+          0,
+          Math.floor((Date.now() - new Date(state.cycleStartedAt).getTime()) / 1000)
+        );
+        if (elapsedSec >= CYCLE_DURATION_SEC) {
+          state.cycleRemainingSec = 0;
+          state.cycleStatus = 'completed';
+        } else {
+          state.cycleRemainingSec = CYCLE_DURATION_SEC - elapsedSec;
+        }
+      } else if (state.cycleStatus === 'completed') {
+        state.cycleRemainingSec = 0;
+      } else {
+        state.cycleRemainingSec = CYCLE_DURATION_SEC;
+      }
+    }
+
     // =========================================================
     // SUPABASE DATABASE SYNC FUNCTIONS
     // =========================================================
@@ -877,1151 +960,19 @@
       return new Date().toISOString().slice(0, 10);
     }
 
+    function setDbStatusDot(ok) {
+      const dot = document.getElementById('db-status-dot');
+      if (!dot) return;
+      dot.className = ok
+        ? 'absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-400 ring-2 ring-[#0D1117]'
+        : 'absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-amber-400 ring-2 ring-[#0D1117]';
+    }
+
     async function syncUserWithDatabase(tgUser, startParam = '') {
-      if (!db) return;
-      try {
-        const tgId = tgUser && tgUser.id ? Number(tgUser.id) : state.tgId;
-        const username = tgUser && tgUser.username ? `@${tgUser.username}` : `@user_${tgId}`;
-        const firstName = tgUser && tgUser.first_name ? tgUser.first_name : 'Puppy Miner';
-
-        state.tgId = tgId;
-        state.username = username;
-        state.firstName = firstName;
-
-        let referrerId = null;
-        if (startParam && startParam.startsWith('ref_')) {
-          const parsedRef = Number(startParam.replace('ref_', '').trim());
-          if (parsedRef && parsedRef !== tgId) {
-            referrerId = parsedRef;
-          }
-        }
-
-        let { data: existingUser } = await db
-          .from('users')
-          .select('*')
-          .eq('tg_id', tgId)
-          .maybeSingle();
-
-        if (!existingUser) {
-          const { data: insertedUser } = await db
-            .from('users')
-            .insert([{
-              tg_id: tgId,
-              username: username,
-              first_name: firstName,
-              balance: 0.00,
-              tap_power: 2,
-              base_passive_rate: 180,
-              max_speed_multiplier: 3.00,
-              cycle_status: 'ready',
-              session_mined: 0.00,
-              booster_base_lvl: 1,
-              booster_max_lvl: 1,
-              booster_tap_lvl: 1,
-              referred_by: referrerId
-            }])
-            .select()
-            .single();
-          existingUser = insertedUser;
-
-          if (referrerId) {
-            await db.rpc && Promise.resolve();
-            const { data: refOwner } = await db
-              .from('users')
-              .select('tg_id, unclaimed_ref_bonus, total_ref_earned')
-              .eq('tg_id', referrerId)
-              .maybeSingle();
-            if (refOwner) {
-              await db
-                .from('users')
-                .update({
-                  unclaimed_ref_bonus: Number(refOwner.unclaimed_ref_bonus || 0) + 1000,
-                  total_ref_earned: Number(refOwner.total_ref_earned || 0) + 1000,
-                  updated_at: new Date().toISOString()
-                })
-                .eq('tg_id', referrerId);
-            }
-          }
-        } else {
-          await db
-            .from('users')
-            .update({
-              username: username,
-              first_name: firstName,
-              updated_at: new Date().toISOString()
-            })
-            .eq('tg_id', tgId);
-        }
-
-        if (existingUser) {
-          state.balance = Number(existingUser.balance || 0);
-          state.tapPower = Number(existingUser.tap_power || 2);
-          state.basePassiveRate = Number(existingUser.base_passive_rate || 180);
-          state.maxSpeedMultiplier = Number(existingUser.max_speed_multiplier || 3.0);
-          state.cycleStatus = existingUser.cycle_status || 'ready';
-          state.cycleStartedAt = existingUser.cycle_started_at || null;
-          state.sessionMined = Number(existingUser.session_mined || 0);
-          state.dailyStreak = Number(existingUser.daily_streak || 0);
-          state.lastCheckinDate = existingUser.last_checkin_date || null;
-          state.dailyClaimedToday = state.lastCheckinDate === getTodayISO();
-          state.unclaimedRef = Number(existingUser.unclaimed_ref_bonus || 0);
-          state.totalRefEarned = Number(existingUser.total_ref_earned || 0);
-
-          if (existingUser.wallet_address) {
-            state.walletConnected = true;
-            state.walletAddress = existingUser.wallet_address;
-          }
-
-          const baseLvl = Number(existingUser.booster_base_lvl || 1);
-          const maxLvl = Number(existingUser.booster_max_lvl || 1);
-          const tapLvl = Number(existingUser.booster_tap_lvl || 1);
-
-          state.boosters.baseSpeed = { level: baseLvl, cost: calcBoosterCost(500, baseLvl) };
-          state.boosters.maxBoost = { level: maxLvl, cost: calcBoosterCost(750, maxLvl) };
-          state.boosters.tapBonus = { level: tapLvl, cost: calcBoosterCost(1200, tapLvl) };
-
-          if (state.cycleStatus === 'active' && state.cycleStartedAt) {
-            const elapsedSec = Math.max(
-              0,
-              Math.floor((Date.now() - new Date(state.cycleStartedAt).getTime()) / 1000)
-            );
-            const effectiveElapsed = Math.min(CYCLE_DURATION_SEC, elapsedSec);
-            const offlineMined = (state.basePassiveRate * effectiveElapsed) / 3600;
-            state.balance = Number((state.balance + offlineMined).toFixed(2));
-            state.sessionMined = Number((state.sessionMined + offlineMined).toFixed(2));
-
-            if (elapsedSec >= CYCLE_DURATION_SEC) {
-              state.cycleRemainingSec = 0;
-              state.cycleStatus = 'completed';
-            } else {
-              state.cycleRemainingSec = CYCLE_DURATION_SEC - elapsedSec;
-            }
-          } else if (state.cycleStatus === 'completed') {
-            state.cycleRemainingSec = 0;
-          } else {
-            state.cycleRemainingSec = CYCLE_DURATION_SEC;
-          }
-        }
-
-        const { count: refCount } = await db
-          .from('users')
-          .select('*', { count: 'exact', head: true })
-          .eq('referred_by', tgId);
-        state.invitedCount = Number(refCount || 0);
-
-        const { data: claimedTasks } = await db
-          .from('user_tasks')
-          .select('task_id')
-          .eq('tg_id', tgId);
-        if (claimedTasks && claimedTasks.length > 0) {
-          const claimedSet = new Set(claimedTasks.map(r => Number(r.task_id)));
-          state.tasks.forEach(t => {
-            if (claimedSet.has(t.id)) t.status = 'claimed';
-          });
-        }
-
-        await loadTransactionsFromDB(tgId);
-        await loadLeaderboardFromDB();
-        await saveProgressToDatabase();
-        renderStreak();
-        renderTasks();
-        renderTransactions();
-        renderLeaderboard();
-        updateUI();
-      } catch (err) {
-        console.error('Supabase sync error:', err);
-      }
-    }
-
-    async function saveProgressToDatabase() {
-      if (!db) return;
-      try {
-        await db
-          .from('users')
-          .update({
-            username: state.username,
-            first_name: state.firstName,
-            balance: Number(state.balance.toFixed(2)),
-            tap_power: state.tapPower,
-            base_passive_rate: state.basePassiveRate,
-            max_speed_multiplier: state.maxSpeedMultiplier,
-            cycle_status: state.cycleStatus,
-            cycle_started_at: state.cycleStartedAt,
-            session_mined: Number(state.sessionMined.toFixed(2)),
-            booster_base_lvl: state.boosters.baseSpeed.level,
-            booster_max_lvl: state.boosters.maxBoost.level,
-            booster_tap_lvl: state.boosters.tapBonus.level,
-            daily_streak: state.dailyStreak,
-            last_checkin_date: state.lastCheckinDate,
-            wallet_address: state.walletConnected ? state.walletAddress : null,
-            unclaimed_ref_bonus: Number(state.unclaimedRef.toFixed(2)),
-            total_ref_earned: Number(state.totalRefEarned.toFixed(2)),
-            updated_at: new Date().toISOString()
-          })
-          .eq('tg_id', state.tgId);
-      } catch (err) {
-        console.error('Supabase save error:', err);
-      }
-    }
-
-    async function recordTransactionInDB({ txType, titleEn, titleRw, amount, channel = null, destination = null, status = 'completed' }) {
-      const numAmt = Number(amount);
-      const formattedAmt = `${numAmt >= 0 ? '+' : ''}${numAmt.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} $PUPPY`;
-
-      state.transactions.unshift({
-        id: 'tx_' + Date.now(),
-        typeEn: titleEn,
-        typeRw: titleRw,
-        amount: formattedAmt,
-        time: state.lang === 'en' ? 'Just now' : 'Ako kanya',
-        positive: numAmt >= 0
-      });
-      renderTransactions();
-
-      if (!db) return;
-      try {
-        await db.from('transactions').insert([{
-          tg_id: state.tgId,
-          tx_type: txType,
-          title_en: titleEn,
-          title_rw: titleRw,
-          amount: numAmt,
-          channel: channel,
-          destination: destination,
-          status: status
-        }]);
-      } catch (err) {
-        console.error('Supabase tx insert error:', err);
-      }
-    }
-
-    async function loadTransactionsFromDB(tgId) {
-      if (!db) return;
-      try {
-        const { data } = await db
-          .from('transactions')
-          .select('*')
-          .eq('tg_id', tgId)
-          .order('created_at', { ascending: false })
-          .limit(10);
-
-        if (data && data.length > 0) {
-          state.transactions = data.map(row => {
-            const amt = Number(row.amount || 0);
-            return {
-              id: row.id,
-              typeEn: row.title_en,
-              typeRw: row.title_rw,
-              amount: `${amt >= 0 ? '+' : ''}${amt.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} $PUPPY`,
-              time: row.created_at ? new Date(row.created_at).toLocaleDateString() : '',
-              positive: amt >= 0
-            };
-          });
-        }
-      } catch (err) {
-        console.error('Supabase load tx error:', err);
-      }
-    }
-
-    async function loadLeaderboardFromDB() {
-      if (!db) return;
-      try {
-        const { data } = await db
-          .from('users')
-          .select('tg_id, username, first_name, balance, base_passive_rate')
-          .order('balance', { ascending: false })
-          .limit(5);
-
-        if (data && data.length > 0) {
-          const badges = ['👑', '🥈', '🥉', '🐾', '⭐'];
-          state.leaderboard = data.map((u, idx) => {
-            const isMe = Number(u.tg_id) === Number(state.tgId);
-            const rawName = u.username || u.first_name || `@miner_${u.tg_id}`;
-            const label = isMe
-              ? `${rawName} ${state.lang === 'rw' ? '(Wowe)' : '(You)'}`
-              : rawName;
-            return {
-              rank: idx + 1,
-              name: label,
-              badge: badges[idx] || '🐾',
-              score: isMe ? Math.floor(state.balance) : Math.floor(Number(u.balance || 0)),
-              rate: `${Number(u.base_passive_rate || 180)}/hr`,
-              isMe: isMe
-            };
-          });
-        }
-      } catch (err) {
-        console.error('Supabase leaderboard error:', err);
-      }
-    }
-
-    // =========================================================
-    // NAVIGATION, FEEDBACK & TOAST HELPERS
-    // =========================================================
-    function switchTab(tabName) {
-      document.querySelectorAll('.tab-pane').forEach(pane => {
-        pane.classList.remove('active');
-      });
-      const targetPane = document.getElementById(`tab-${tabName}`);
-      if (targetPane) {
-        targetPane.classList.add('active');
-      }
-
-      document.querySelectorAll('.nav-btn').forEach(btn => {
-        const isTarget = btn.getAttribute('data-tab') === tabName;
-        if (isTarget) {
-          btn.classList.add('active', 'text-amber-400', 'bg-amber-500/10');
-          btn.classList.remove('text-slate-400');
-        } else {
-          btn.classList.remove('active', 'text-amber-400', 'bg-amber-500/10');
-          btn.classList.add('text-slate-400');
-        }
-      });
-
-      triggerHaptic(8);
-      if (tabName === 'home') loadLeaderboardFromDB();
-      if (tabName === 'wallet') loadTransactionsFromDB(state.tgId).then(renderTransactions);
-      updateUI();
-    }
-
-    let toastTimeout = null;
-    function showToast(message, icon = '✨') {
-      const banner = document.getElementById('toast-banner');
-      document.getElementById('toast-icon').textContent = icon;
-      document.getElementById('toast-message').textContent = message;
-
-      banner.classList.remove('opacity-0', 'translate-y-3');
-      banner.classList.add('opacity-100', 'translate-y-0');
-
-      clearTimeout(toastTimeout);
-      toastTimeout = setTimeout(() => {
-        banner.classList.remove('opacity-100', 'translate-y-0');
-        banner.classList.add('opacity-0', 'translate-y-3');
-      }, 2400);
-    }
-
-    function triggerHaptic(ms = 12) {
-      if (!state.hapticEnabled) return;
-      try {
-        if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.HapticFeedback) {
-          window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
-        } else if (navigator.vibrate) {
-          navigator.vibrate(ms);
-        }
-      } catch (e) {}
-    }
-
-    let audioCtx = null;
-    function playTone(freq = 640, duration = 0.08, type = 'sine') {
-      if (!state.soundEnabled) return;
-      try {
-        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-        if (!AudioContextClass) return;
-        if (!audioCtx) audioCtx = new AudioContextClass();
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = type;
-        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-        gain.gain.setValueAtTime(0.06, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
-
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + duration);
-      } catch (e) {}
-    }
-
-    // =========================================================
-    // HOME: 24H REACTOR, TAP-TO-BOOST SPEED & BOOSTERS
-    // =========================================================
-    function formatSecondsHMS(totalSec) {
-      const s = Math.max(0, Math.floor(totalSec));
-      const hrs = String(Math.floor(s / 3600)).padStart(2, '0');
-      const mins = String(Math.floor((s % 3600) / 60)).padStart(2, '0');
-      const secs = String(s % 60).padStart(2, '0');
-      return `${hrs}:${mins}:${secs}`;
-    }
-
-    function spawnFloatingParticle(e, text) {
-      const rect = e && e.currentTarget ? e.currentTarget.getBoundingClientRect() : null;
-      const clientX = (e && e.clientX) || (rect ? rect.left + rect.width / 2 : window.innerWidth / 2);
-      const clientY = (e && e.clientY) || (rect ? rect.top + rect.height / 2 : window.innerHeight / 2);
-
-      const floater = document.createElement('div');
-      floater.className = 'floating-number';
-      floater.textContent = text;
-      floater.style.left = `${clientX - 24}px`;
-      floater.style.top = `${clientY - 24}px`;
-      document.body.appendChild(floater);
-      setTimeout(() => floater.remove(), 850);
-    }
-
-    async function handleReactorInteraction(e) {
-      if (state.cycleStatus === 'completed') {
-        const reward = Math.max(100, Number(state.sessionMined.toFixed(2)));
-        state.balance = Number((state.balance + reward).toFixed(2));
-        await recordTransactionInDB({
-          txType: 'mining_claim',
-          titleEn: '24h Mining Cycle Claim',
-          titleRw: 'Ibihembo bya Mining 24h',
-          amount: reward
-        });
-        state.sessionMined = 0;
-        state.cycleStartedAt = new Date().toISOString();
-        state.cycleRemainingSec = CYCLE_DURATION_SEC;
-        state.cycleStatus = 'active';
-        state.speedMultiplier = 1.0;
-        triggerHaptic(30);
-        playTone(860, 0.16, 'sine');
-        spawnFloatingParticle(e, `+${reward.toFixed(0)} $PUPPY!`);
-        showToast(
-          state.lang === 'en'
-            ? `Claimed +${reward.toFixed(2)} $PUPPY! New 24h mining started.`
-            : `Wabonye +${reward.toFixed(2)} $PUPPY! Indi 24h itangiye.`,
-          '🎉'
-        );
-        await saveProgressToDatabase();
-        updateUI();
-        return;
-      }
-
-      if (state.cycleStatus === 'ready') {
-        state.cycleStatus = 'active';
-        state.cycleStartedAt = new Date().toISOString();
-        state.cycleRemainingSec = CYCLE_DURATION_SEC;
-        state.sessionMined = 0;
-        state.speedMultiplier = 1.15;
-        state.lastTapTimestamp = Date.now();
-        triggerHaptic(22);
-        playTone(720, 0.12, 'sine');
-        spawnFloatingParticle(e, '24H STARTED!');
-        showToast(
-          state.lang === 'en'
-            ? '24-Hour Mining Started! Tap to boost speed.'
-            : 'Mining y’amasaha 24 itangiye! Kanda wongere umuvuduko.',
-          '🚀'
-        );
-        await saveProgressToDatabase();
-        updateUI();
-        return;
-      }
-
-      state.lastTapTimestamp = Date.now();
-      state.speedMultiplier = Math.min(
-        state.maxSpeedMultiplier,
-        Number((state.speedMultiplier + 0.08).toFixed(2))
-      );
-
-      const tapEarned = Number((state.tapPower * state.speedMultiplier).toFixed(2));
-      state.balance = Number((state.balance + tapEarned).toFixed(2));
-      state.sessionMined = Number((state.sessionMined + tapEarned).toFixed(2));
-
-      triggerHaptic(14);
-      playTone(580 + state.speedMultiplier * 140, 0.055, 'triangle');
-      spawnFloatingParticle(e, `+${tapEarned.toFixed(1)} (${state.speedMultiplier.toFixed(2)}x)`);
-
-      updateUI();
-    }
-
-    async function fastForwardCycleDemo() {
-      if (state.cycleStatus !== 'active') return;
-      state.cycleRemainingSec = 0;
-      state.cycleStatus = 'completed';
-      state.speedMultiplier = 1.0;
-      triggerHaptic(25);
-      playTone(820, 0.14, 'sine');
-      showToast(
-        state.lang === 'en'
-          ? '24h cycle complete! Tap the Puppy orb to claim & restart.'
-          : 'Amasaha 24 ararangiye! Kanda ku mupira ufate ibihembo.',
-        '⏰'
-      );
-      await saveProgressToDatabase();
-      updateUI();
-    }
-
-    async function upgradeBooster(type) {
-      const b = state.boosters[type];
-      if (!b) return;
-      if (state.balance < b.cost) {
-        showToast(state.lang === 'en' ? 'Insufficient $PUPPY balance!' : 'Ntabwo ufite $PUPPY zihagije!', '⚠️');
-        return;
-      }
-
-      const oldCost = b.cost;
-      state.balance = Number((state.balance - oldCost).toFixed(2));
-      b.level += 1;
-      b.cost = Math.round(oldCost * 1.65);
-
-      if (type === 'baseSpeed') {
-        state.basePassiveRate += 60;
-        await recordTransactionInDB({
-          txType: 'upgrade',
-          titleEn: `Base Speed Upgrade (Lvl ${b.level})`,
-          titleRw: `Kuzamura Base Speed (Lvl ${b.level})`,
-          amount: -oldCost
-        });
-      } else if (type === 'maxBoost') {
-        state.maxSpeedMultiplier = Number((state.maxSpeedMultiplier + 0.5).toFixed(1));
-        await recordTransactionInDB({
-          txType: 'upgrade',
-          titleEn: `Max Multiplier (Lvl ${b.level})`,
-          titleRw: `Kuzamura Inshuro Ntarengwa (Lvl ${b.level})`,
-          amount: -oldCost
-        });
-      } else if (type === 'tapBonus') {
-        state.tapPower += 1;
-        await recordTransactionInDB({
-          txType: 'upgrade',
-          titleEn: `Tap Bonus Upgrade (Lvl ${b.level})`,
-          titleRw: `Kuzamura Inyungu yo Gukanda (Lvl ${b.level})`,
-          amount: -oldCost
-        });
-      }
-
-      triggerHaptic(20);
-      playTone(840, 0.12, 'sine');
-      showToast(state.lang === 'en' ? `Upgraded to Level ${b.level}!` : `Byazamuwe ku rwego rwa ${b.level}!`, '🚀');
-      await saveProgressToDatabase();
-      updateUI();
-    }
-
-    // =========================================================
-    // TASKS & DAILY STREAK
-    // =========================================================
-    function renderStreak() {
-      const grid = document.getElementById('streak-grid');
-      const rewards = ['100', '250', '500', '1K', '1.5K', '2.5K', '5K'];
-      const currentStreak = state.dailyStreak || 0;
-
-      grid.innerHTML = rewards.map((amt, idx) => {
-        const day = idx + 1;
-        const isDone = day <= currentStreak;
-        const isToday = day === currentStreak + 1 && !state.dailyClaimedToday;
-        return `
-          <div class="rounded-xl py-2 px-1 border ${
-            isToday
-              ? 'bg-amber-500/20 border-amber-400 text-amber-300 shadow-md shadow-amber-500/10'
-              : isDone
-              ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
-              : 'bg-white/[0.02] border-white/5 text-slate-500'
-          }">
-            <div class="text-[9px] font-bold">D${day}</div>
-            <div class="text-[11px] font-black font-mono mt-0.5">${isDone ? '✓' : amt}</div>
-          </div>
-        `;
-      }).join('');
-
-      const btn = document.getElementById('daily-claim-btn');
-      if (btn) {
-        if (state.dailyClaimedToday) {
-          btn.classList.remove('bg-amber-500', 'hover:bg-amber-400', 'text-slate-950');
-          btn.classList.add('bg-emerald-500/20', 'text-emerald-400', 'border', 'border-emerald-500/30');
-          btn.innerHTML = `<span>${i18n[state.lang].checkin_done}</span>`;
-        } else {
-          btn.classList.add('bg-amber-500', 'hover:bg-amber-400', 'text-slate-950');
-          btn.classList.remove('bg-emerald-500/20', 'text-emerald-400', 'border', 'border-emerald-500/30');
-          btn.innerHTML = `<span>${i18n[state.lang].checkin_btn}</span>`;
-        }
-      }
-    }
-
-    async function claimDailyStreak() {
-      if (state.dailyClaimedToday) {
-        showToast(state.lang === 'rw' ? 'Ibihembo by’uyu munsi wamaze kubifata!' : 'Today’s check-in already claimed!', '✅');
-        return;
-      }
-      const nextDay = Math.min(7, (state.dailyStreak || 0) + 1);
-      const dayRewards = [100, 250, 500, 1000, 1500, 2500, 5000];
-      const reward = dayRewards[nextDay - 1] || 500;
-
-      state.dailyStreak = nextDay;
-      state.lastCheckinDate = getTodayISO();
-      state.dailyClaimedToday = true;
-      state.balance = Number((state.balance + reward).toFixed(2));
-
-      await recordTransactionInDB({
-        txType: 'task',
-        titleEn: `Daily Check-in (Day ${nextDay})`,
-        titleRw: `Igihembo cy’Umunsi wa ${nextDay}`,
-        amount: reward
-      });
-      await saveProgressToDatabase();
-
-      triggerHaptic(30);
-      playTone(880, 0.15, 'sine');
-      showToast(`+${reward.toLocaleString()} $PUPPY Daily Bonus!`, '🔥');
-      renderStreak();
-      updateUI();
-    }
-
-    function renderTasks() {
-      const container = document.getElementById('task-list-container');
-      const dict = i18n[state.lang];
-      let completedCount = 0;
-
-      container.innerHTML = state.tasks.map(task => {
-        if (task.status === 'claimed') completedCount++;
-        const title = state.lang === 'en' ? task.titleEn : task.titleRw;
-
-        let btnHtml = '';
-        if (task.status === 'claimed') {
-          btnHtml = `<span class="px-3 py-1.5 rounded-xl bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-xs font-bold">✓ ${dict.task_done}</span>`;
-        } else if (task.status === 'verifying') {
-          btnHtml = `<button type="button" disabled class="px-3.5 py-1.5 rounded-xl bg-cyan-500/20 text-cyan-300 text-xs font-bold animate-pulse">${dict.task_verify}...</button>`;
-        } else if (task.status === 'claim') {
-          btnHtml = `<button type="button" onclick="handleTaskClick(${task.id})" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 font-extrabold text-xs shadow-md active:scale-95 transition">${dict.task_claim}</button>`;
-        } else {
-          btnHtml = `<button type="button" onclick="handleTaskClick(${task.id})" class="px-3.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-bold text-xs active:scale-95 transition">${dict.task_start}</button>`;
-        }
-
-        return `
-          <div class="glass-card rounded-2xl p-3 flex items-center justify-between gap-3">
-            <div class="flex items-center gap-3 min-w-0">
-              <div class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-lg shrink-0">
-                ${task.icon}
-              </div>
-              <div class="min-w-0">
-                <div class="text-xs font-bold text-white truncate">${title}</div>
-                <div class="text-[11px] font-mono font-bold text-amber-400 mt-0.5">+${task.reward.toLocaleString()} $PUPPY</div>
-              </div>
-            </div>
-            <div class="shrink-0">${btnHtml}</div>
-          </div>
-        `;
-      }).join('');
-
-      document.getElementById('tasks-completed-count').textContent = completedCount;
-      const navDot = document.getElementById('task-nav-dot');
-      if (completedCount === state.tasks.length) {
-        navDot.classList.add('hidden');
-      } else {
-        navDot.classList.remove('hidden');
-      }
-    }
-
-    async function handleTaskClick(taskId) {
-      const task = state.tasks.find(t => t.id === taskId);
-      if (!task) return;
-
-      if (task.status === 'start') {
-        triggerHaptic(10);
-        task.status = 'verifying';
-        renderTasks();
-        showToast(state.lang === 'en' ? 'Verifying task completion...' : 'Turi kugenzura ko warangije task...', '🔍');
-        setTimeout(() => {
-          task.status = 'claim';
-          renderTasks();
-          playTone(680, 0.08, 'sine');
-        }, 1200);
-      } else if (task.status === 'claim') {
-        task.status = 'claimed';
-        state.balance = Number((state.balance + task.reward).toFixed(2));
-
-        if (db) {
-          try {
-            await db.from('user_tasks').upsert([{
-              tg_id: state.tgId,
-              task_id: task.id,
-              reward: task.reward
-            }], { onConflict: 'tg_id,task_id' });
-          } catch (e) {}
-        }
-
-        await recordTransactionInDB({
-          txType: 'task',
-          titleEn: task.titleEn,
-          titleRw: task.titleRw,
-          amount: task.reward
-        });
-        await saveProgressToDatabase();
-
-        triggerHaptic(25);
-        playTone(920, 0.15, 'sine');
-        showToast(`+${task.reward.toLocaleString()} $PUPPY ${state.lang === 'en' ? 'earned!' : 'byabitswe!'}`, '🎉');
-        renderTasks();
-        updateUI();
-      }
-    }
-
-    function renderLeaderboard() {
-      const container = document.getElementById('leaderboard-list');
-      if (!container) return;
-      const currentEffectiveRate = Math.round(state.basePassiveRate * state.speedMultiplier);
-
-      if (!state.leaderboard || state.leaderboard.length === 0) {
-        state.leaderboard = [{
-          rank: 1,
-          name: `${state.username} ${state.lang === 'rw' ? '(Wowe)' : '(You)'}`,
-          badge: '👑',
-          score: Math.floor(state.balance),
-          rate: `${currentEffectiveRate}/hr`,
-          isMe: true
-        }];
-      } else {
-        state.leaderboard.forEach(item => {
-          if (item.isMe) {
-            item.score = Math.floor(state.balance);
-            item.rate = `${currentEffectiveRate}/hr`;
-            item.name = `${state.username} ${state.lang === 'rw' ? '(Wowe)' : '(You)'}`;
-          }
-        });
-      }
-
-      container.innerHTML = state.leaderboard.map(item => `
-        <div class="flex items-center justify-between p-2 rounded-xl ${
-          item.isMe
-            ? 'bg-amber-500/15 border border-amber-400/40'
-            : 'bg-white/[0.03] border border-white/5'
-        }">
-          <div class="flex items-center gap-2.5 min-w-0">
-            <span class="w-6 h-6 rounded-lg bg-white/5 flex items-center justify-center text-xs font-bold shrink-0">
-              ${item.badge}
-            </span>
-            <div class="min-w-0">
-              <div class="text-xs font-bold ${item.isMe ? 'text-amber-300' : 'text-white'} truncate">${item.name}</div>
-              <div class="text-[10px] text-slate-400">⚡ ${item.rate}</div>
-            </div>
-          </div>
-          <div class="text-xs font-mono font-extrabold ${item.isMe ? 'text-amber-300' : 'text-cyan-300'} shrink-0">
-            ${item.score.toLocaleString()} $PUPPY
-          </div>
-        </div>
-      `).join('');
-    }
-
-    async function claimReferralRewards() {
-      if (state.unclaimedRef <= 0) {
-        showToast(state.lang === 'rw' ? 'Nta bihembo bishya by’inshuti biraboneka!' : 'No new referral rewards yet!', '⏳');
-        return;
-      }
-      const amt = Number(state.unclaimedRef.toFixed(2));
-      state.balance = Number((state.balance + amt).toFixed(2));
-      state.totalRefEarned = Number((state.totalRefEarned + amt).toFixed(2));
-      state.unclaimedRef = 0;
-
-      await recordTransactionInDB({
-        txType: 'referral',
-        titleEn: 'Referral Commission Claim',
-        titleRw: 'Ibihembo by’Abatumiwe',
-        amount: amt
-      });
-      await saveProgressToDatabase();
-
-      triggerHaptic(22);
-      playTone(860, 0.14, 'sine');
-      showToast(`+${amt} $PUPPY ${state.lang === 'rw' ? 'byabitswe!' : 'claimed!'}`, '🤝');
-      updateUI();
-    }
-
-    // =========================================================
-    // WALLET, WITHDRAW MODAL & TRANSACTIONS
-    // =========================================================
-    async function toggleWalletConnection() {
-      triggerHaptic(18);
-      state.walletConnected = !state.walletConnected;
-      const btn = document.getElementById('connect-wallet-btn');
-      const label = document.getElementById('connect-wallet-label');
-      const statusText = document.getElementById('wallet-status-text');
-
-      if (state.walletConnected) {
-        btn.classList.remove('from-cyan-500', 'to-blue-500', 'text-slate-950');
-        btn.classList.add('bg-emerald-500/15', 'border', 'border-emerald-500/40', 'text-emerald-300');
-        label.textContent =
-          state.lang === 'en'
-            ? `Connected (${state.walletAddress}) • Disconnect`
-            : `Yarahujwe (${state.walletAddress}) • Kuraho`;
-        statusText.textContent =
-          state.lang === 'en' ? 'Tonkeeper Wallet Active • Ready for Airdrop' : 'Tonkeeper Iri Gukora • Yiteguye Airdrop';
-        playTone(760, 0.12, 'sine');
-        showToast(state.lang === 'en' ? 'TON Wallet connected!' : 'TON Wallet yahujwe neza!', '💎');
-      } else {
-        btn.classList.add('from-cyan-500', 'to-blue-500', 'text-slate-950');
-        btn.classList.remove('bg-emerald-500/15', 'border', 'border-emerald-500/40', 'text-emerald-300');
-        label.textContent = i18n[state.lang].connect_ton_btn;
-        statusText.textContent = i18n[state.lang].wallet_disconnected;
-        showToast(state.lang === 'en' ? 'Wallet disconnected' : 'Wallet yakuweho', '🔌');
-      }
-      await saveProgressToDatabase();
-    }
-
-    function openWithdrawModal() {
-      triggerHaptic(12);
-      document.getElementById('modal-max-balance').textContent = Math.floor(state.balance).toLocaleString();
-      document.getElementById('withdraw-modal').classList.remove('hidden');
-      document.getElementById('withdraw-modal').classList.add('flex');
-      selectWithdrawMethod(state.withdrawMethod);
-      updateWithdrawPreview();
-    }
-
-    function closeWithdrawModal() {
-      document.getElementById('withdraw-modal').classList.add('hidden');
-      document.getElementById('withdraw-modal').classList.remove('flex');
-    }
-
-    function selectWithdrawMethod(method) {
-      state.withdrawMethod = method;
-      const momoBtn = document.getElementById('method-momo-btn');
-      const tonBtn = document.getElementById('method-ton-btn');
-      const momoBox = document.getElementById('momo-provider-box');
-      const destLabel = document.getElementById('withdraw-dest-label');
-      const destInput = document.getElementById('withdraw-dest-input');
-
-      if (method === 'momo') {
-        momoBtn.className = 'p-2.5 rounded-xl border border-amber-400 bg-amber-500/15 text-left transition';
-        tonBtn.className = 'p-2.5 rounded-xl border border-white/10 bg-white/5 text-left transition';
-        momoBox.classList.remove('hidden');
-        destLabel.textContent = i18n[state.lang].momo_phone_label;
-        destInput.placeholder = '0788 123 456';
-        destInput.value = '';
-      } else {
-        tonBtn.className = 'p-2.5 rounded-xl border border-cyan-400 bg-cyan-500/15 text-left transition';
-        momoBtn.className = 'p-2.5 rounded-xl border border-white/10 bg-white/5 text-left transition';
-        momoBox.classList.add('hidden');
-        destLabel.textContent = i18n[state.lang].ton_addr_label;
-        destInput.placeholder = 'UQD4x8...9kL2';
-        destInput.value = state.walletConnected ? state.walletAddress : '';
-      }
-      updateWithdrawPreview();
-    }
-
-    function selectMomoNetwork(network) {
-      state.momoNetwork = network;
-      const mtn = document.getElementById('net-mtn');
-      const airtel = document.getElementById('net-airtel');
-      if (network === 'MTN MoMo') {
-        mtn.className = 'flex-1 py-1.5 rounded-lg bg-yellow-400/20 border border-yellow-400 text-yellow-300 text-[11px] font-extrabold';
-        airtel.className = 'flex-1 py-1.5 rounded-lg bg-white/5 border border-white/10 text-slate-400 text-[11px] font-bold';
-      } else {
-        airtel.className = 'flex-1 py-1.5 rounded-lg bg-rose-500/20 border border-rose-400 text-rose-300 text-[11px] font-extrabold';
-        mtn.className = 'flex-1 py-1.5 rounded-lg bg-white/5 border border-white/10 text-slate-400 text-[11px] font-bold';
-      }
-      updateWithdrawPreview();
-    }
-
-    function fillMaxWithdraw() {
-      document.getElementById('withdraw-amount-input').value = Math.floor(state.balance);
-      updateWithdrawPreview();
-    }
-
-    function updateWithdrawPreview() {
-      const amt = parseFloat(document.getElementById('withdraw-amount-input').value) || 0;
-      const preview = document.getElementById('withdraw-receive-preview');
-      if (state.withdrawMethod === 'momo') {
-        const rwf = Math.floor(amt * 2.8);
-        preview.textContent = `${rwf.toLocaleString()} RWF (${state.momoNetwork})`;
-      } else {
-        const ton = (amt * 0.00038).toFixed(3);
-        preview.textContent = `${ton} TON`;
-      }
-    }
-
-    async function submitWithdrawal() {
-      const dest = document.getElementById('withdraw-dest-input').value.trim();
-      const amt = parseFloat(document.getElementById('withdraw-amount-input').value) || 0;
-
-      if (!dest) {
-        showToast(state.lang === 'rw' ? 'Andika nimero cyangwa aderesi!' : 'Enter destination number or address!', '⚠️');
-        return;
-      }
-      if (amt < 2000) {
-        showToast(state.lang === 'rw' ? 'Kubikuza bihera kuri 2,000 $PUPPY!' : 'Minimum withdrawal is 2,000 $PUPPY!', '⚠️');
-        return;
-      }
-      if (amt > state.balance) {
-        showToast(state.lang === 'rw' ? 'Ntabwo ufite $PUPPY zihagije!' : 'Insufficient $PUPPY balance!', '⚠️');
-        return;
-      }
-
-      state.balance = Number((state.balance - amt).toFixed(2));
-      const channel = state.withdrawMethod === 'momo' ? state.momoNetwork : 'TON Wallet';
-
-      await recordTransactionInDB({
-        txType: 'withdraw',
-        titleEn: `Withdraw to ${channel}`,
-        titleRw: `Kubikuza kuri ${channel} (${dest.slice(0, 10)})`,
-        amount: -amt,
-        channel: channel,
-        destination: dest,
-        status: 'pending'
-      });
-      await saveProgressToDatabase();
-
-      closeWithdrawModal();
-      triggerHaptic(30);
-      playTone(880, 0.16, 'sine');
-      showToast(
-        state.lang === 'rw'
-          ? `Ubusabe bwo kubikuza ${amt.toLocaleString()} $PUPPY bwoherejwe!`
-          : `Withdrawal of ${amt.toLocaleString()} $PUPPY submitted!`,
-        '✅'
-      );
-      updateUI();
-    }
-
-    function handleWalletAction() {
-      if (!state.walletConnected) {
-        showToast(state.lang === 'en' ? 'Please connect your TON Wallet first!' : 'Banza uhuze TON Wallet yawe!', '💎');
-        return;
-      }
-      triggerHaptic(12);
-      const tonVal = (state.balance * 0.00038).toFixed(2);
-      showToast(`Est. Swap: ${Math.floor(state.balance).toLocaleString()} $PUPPY ≈ ${tonVal} TON`, '🔄');
-    }
-
-    function renderTransactions() {
-      const container = document.getElementById('tx-history-list');
-      if (!state.transactions || state.transactions.length === 0) {
-        container.innerHTML = `
-          <div class="glass-card rounded-xl p-4 text-center text-xs text-slate-400">
-            ${state.lang === 'rw' ? 'Nta bikorwa biraboneka.' : 'No recent transactions yet.'}
-          </div>
-        `;
-        return;
-      }
-
-      container.innerHTML = state.transactions.slice(0, 8).map(tx => {
-        const title = state.lang === 'en' ? tx.typeEn : tx.typeRw;
-        return `
-          <div class="glass-card rounded-xl p-3 flex items-center justify-between">
-            <div class="flex items-center gap-2.5">
-              <div class="w-8 h-8 rounded-lg ${tx.positive ? 'bg-emerald-500/15 text-emerald-400' : 'bg-amber-500/15 text-amber-400'} flex items-center justify-center text-xs font-bold">
-                ${tx.positive ? '↓' : '↑'}
-              </div>
-              <div>
-                <div class="text-xs font-bold text-white">${title}</div>
-                <div class="text-[10px] text-slate-400">${tx.time}</div>
-              </div>
-            </div>
-            <div class="text-xs font-mono font-bold ${tx.positive ? 'text-emerald-400' : 'text-amber-400'}">
-              ${tx.amount}
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    // =========================================================
-    // PROFILE: COPY REFERRAL, TOGGLES & LANGUAGE SWITCHER
-    // =========================================================
-    function copyReferralLink(inputId = 'ref-link-input') {
-      const input = document.getElementById(inputId);
-      if (!input) return;
-      input.select();
-      input.setSelectionRange(0, 99999);
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(input.value).catch(() => {});
-      }
-      try {
-        document.execCommand('copy');
-      } catch (e) {}
-      triggerHaptic(15);
-      playTone(720, 0.08, 'sine');
-      showToast(state.lang === 'en' ? 'Invite link copied to clipboard!' : 'Link yo gutumira yakoporowe!', '📋');
-    }
-
-    function toggleSwitch(btn) {
-      const isOn = btn.classList.contains('bg-emerald-500');
-      if (isOn) {
-        btn.classList.remove('bg-emerald-500', 'justify-end');
-        btn.classList.add('bg-slate-700', 'justify-start');
-      } else {
-        btn.classList.add('bg-emerald-500', 'justify-end');
-        btn.classList.remove('bg-slate-700', 'justify-start');
-      }
-      if (btn.id === 'toggle-haptic') state.hapticEnabled = !isOn;
-      if (btn.id === 'toggle-sound') state.soundEnabled = !isOn;
-      triggerHaptic(10);
-    }
-
-    function toggleLanguage() {
-      state.lang = state.lang === 'en' ? 'rw' : 'en';
-      const dict = i18n[state.lang];
-
-      document.getElementById('lang-badge').textContent = state.lang.toUpperCase();
-      document.getElementById('settings-lang-label').textContent = state.lang === 'en' ? 'English (EN)' : 'Ikinyarwanda (RW)';
-
-      document.querySelectorAll('[data-i18n]').forEach(el => {
-        const key = el.getAttribute('data-i18n');
-        if (dict[key]) {
-          el.textContent = dict[key];
-        }
-      });
-
-      if (state.walletConnected) {
-        document.getElementById('connect-wallet-label').textContent =
-          state.lang === 'en' ? `Connected (${state.walletAddress}) • Disconnect` : `Yarahujwe (${state.walletAddress}) • Kuraho`;
-      }
-
-      renderStreak();
-      renderTasks();
-      renderTransactions();
-      renderLeaderboard();
-      updateUI();
-      triggerHaptic(10);
-      showToast(state.lang === 'en' ? 'Switched to English' : 'Byahinduwe mu Kinyarwanda', '🌐');
-    }
-
-    // =========================================================
-    // REAL-TIME UI SYNC & 24-HOUR MINING ENGINE
-    // =========================================================
-    function updateUI() {
-      const dict = i18n[state.lang];
-      const effectiveRate = state.cycleStatus === 'active'
-        ? Math.round(state.basePassiveRate * state.speedMultiplier)
-        : 0;
-
-      document.getElementById('header-username').textContent = state.username;
-      document.getElementById('profile-display-name').textContent = state.firstName;
-      document.getElementById('profile-tg-id').textContent = `TG ID: ${state.tgId}`;
-
-      const refUrl = `https://t.me/DonCoinApp_bot/app?startapp=ref_${state.tgId}`;
-      const refInput1 = document.getElementById('ref-link-input');
-      const refInput2 = document.getElementById('tasks-ref-link-input');
-      if (refInput1) refInput1.value = refUrl;
-      if (refInput2) refInput2.value = refUrl;
-
-      document.getElementById('balance-display').textContent = state.balance.toLocaleString('en-US', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-      });
-      document.getElementById('usd-estimate').textContent = (state.balance * 0.002).toFixed(2);
-      document.getElementById('wallet-avail-balance').textContent = Math.floor(state.balance).toLocaleString();
-      document.getElementById('unclaimed-ref-amt').textContent = Math.floor(state.unclaimedRef).toLocaleString();
-      document.getElementById('total-ref-earned').textContent = `+${Math.floor(state.totalRefEarned).toLocaleString()}`;
-      document.getElementById('profile-ref-earned').textContent = `+${Math.floor(state.totalRefEarned).toLocaleString()}`;
-      document.getElementById('invited-count-val').textContent = state.invitedCount;
-      document.getElementById('profile-invited-val').textContent = state.invitedCount;
-
-      const xpGoal = 25000;
-      const xpPct = Math.min(100, Math.round((state.balance / xpGoal) * 100));
-      document.getElementById('profile-xp-label').textContent = `${(state.balance / 1000).toFixed(1)}K / 25K`;
-      document.getElementById('profile-xp-bar').style.width = `${xpPct}%`;
-
-      document.getElementById('tap-power-label').textContent = state.tapPower;
-      document.getElementById('passive-rate-label').textContent = effectiveRate;
-      document.getElementById('effective-rate-label').textContent = effectiveRate;
-      document.getElementById('session-mined-label').textContent = state.sessionMined.toFixed(2);
-      document.getElementById('countdown-timer').textContent = formatSecondsHMS(state.cycleRemainingSec);
-
-      document.getElementById('speed-multiplier-label').textContent = `${state.speedMultiplier.toFixed(2)}x`;
-      document.getElementById('reactor-mult-pill').textContent = `${state.speedMultiplier.toFixed(2)}x`;
-      const boostPct = ((state.speedMultiplier - 1.0) / Math.max(0.1, state.maxSpeedMultiplier - 1.0)) * 100;
-      document.getElementById('speed-boost-bar').style.width = `${Math.min(100, Math.max(0, boostPct))}%`;
-
-      const circumference = 678.58;
-      const elapsedRatio = state.cycleStatus === 'completed'
-        ? 1
-        : state.cycleStatus === 'ready'
-        ? 0
-        : (CYCLE_DURATION_SEC - state.cycleRemainingSec) / CYCLE_DURATION_SEC;
-      const dashOffset = circumference * (1 - Math.min(1, Math.max(0, elapsedRatio)));
-      document.getElementById('cycle-progress-ring').style.strokeDashoffset = dashOffset.toFixed(2);
-
-      const statusTitle = document.getElementById('cycle-status-title');
-      const stateBadge = document.getElementById('cycle-state-badge');
-      const mainLabel = document.getElementById('reactor-main-label');
-      const hintLabel = document.getElementById('reactor-helper-hint');
-      const emblem = document.getElementById('reactor-emblem');
-
-      if (state.cycleStatus === 'completed') {
-        statusTitle.textContent = dict.cycle_completed_title;
-        stateBadge.textContent = '100% DONE';
-        stateBadge.className = 'px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[9px] font-extrabold uppercase animate-pulse';
-        mainLabel.textContent = dict.claim_restart_24h;
-        hintLabel.textContent = dict.reactor_hint_completed;
-        emblem.textContent = '🎁';
-      } else if (state.cycleStatus === 'ready') {
-        statusTitle.textContent = dict.cycle_ready_title;
-        stateBadge.textContent = 'READY';
-        stateBadge.className = 'px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-300 text-[9px] font-extrabold uppercase';
-        mainLabel.textContent = dict.start_24h_mining;
-        hintLabel.textContent = dict.reactor_hint_ready;
-        emblem.textContent = '🐶';
-      } else {
-        statusTitle.textContent = dict.cycle_active_title;
-        stateBadge.textContent = state.speedMultiplier > 1.05 ? 'BOOSTED' : 'ACTIVE';
-        stateBadge.className = state.speedMultiplier > 1.05
-          ? 'px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[9px] font-extrabold uppercase'
-          : 'px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-400 text-[9px] font-extrabold uppercase';
-        mainLabel.textContent = dict.tap_boost_speed;
-        hintLabel.textContent = dict.reactor_hint_active;
-        emblem.textContent = state.speedMultiplier >= 2.0 ? '🔥' : '🐶';
-      }
-
-      document.getElementById('lvl-baseSpeed').textContent = state.boosters.baseSpeed.level;
-      document.getElementById('cost-baseSpeed').textContent = `${state.boosters.baseSpeed.cost.toLocaleString()} $PUPPY`;
-
-      document.getElementById('lvl-maxBoost').textContent = state.boosters.maxBoost.level;
-      document.getElementById('cost-maxBoost').textContent = `${state.boosters.maxBoost.cost.toLocaleString()} $PUPPY`;
-
-      document.getElementById('lvl-tapBonus').textContent = state.boosters.tapBonus.level;
-      document.getElementById('cost-tapBonus').textContent = `${state.boosters.tapBonus.cost.toLocaleString()} $PUPPY`;
-
-      renderLeaderboard();
-    }
-
-    let dbSyncTickCounter = 0;
-    setInterval(() => {
-      if (state.cycleStatus === 'active') {
-        state.cycleRemainingSec = Math.max(0, state.cycleRemainingSec - 0.25);
-
-        const perQuarterSec = (state.basePassiveRate * state.speedMultiplier) / 14400;
-        state.balance = Number((state.balance + perQuarterSec).toFixed(4));
-        state.sessionMined = Number((state.sessionMined + perQuarterSec).toFixed(4));
-
-        if (Date.now() - state.lastTapTimestamp > 700 && state.speedMultiplier > 1.0) {
-          state.speedMultiplier = Math.max(1.0, Number((state.speedMultiplier - 0.04).toFixed(2)));
-        }
-
-        if (state.cycleRemainingSec <= 0) {
-          state.cycleRemainingSec = 0;
-          state.cycleStatus = 'completed';
-          state.speedMultiplier = 1.0;
-          saveProgressToDatabase();
-          showToast(
-            state.lang === 'en'
-              ? '24h Mining Complete! Tap the orb to claim & restart.'
-              : 'Mining 24h irarangiye! Kanda ku mupira ufate ibihembo.',
-            '🎉'
-          );
-        }
-      }
-
-      dbSyncTickCounter++;
-      if (dbSyncTickCounter >= 40) { // buri masogonda 10
-        dbSyncTickCounter = 0;
-        saveProgressToDatabase();
-      }
-
-      updateUI();
-    }, 250);
-
-    window.addEventListener('DOMContentLoaded', async () => {
-      let tgUser = null;
-      let startParam = '';
-
-      try {
-        if (window.Telegram && window.Telegram.WebApp) {
-          const tg = window.Telegram.WebApp;
-          tg.ready();
-          tg.expand();
-          tgUser = tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user : null;
-          startParam = tg.initDataUnsafe && tg.initDataUnsafe.start_param ? tg.initDataUnsafe.start_param : '';
-        }
-      } catch (e) {}
-
-      renderStreak();
-      renderTasks();
-      renderTransactions();
-      renderLeaderboard();
-      updateUI();
-
-      await syncUserWithDatabase(tgUser, startParam);
-    });
-  </script>
-</body>
-</html>
+      const tgId = tgUser && tgUser.id ? Number(tgUser.id) : state.tgId;
+      const username = tgUser && tgUser.username ? `@${tgUser.username}` : `@user_${tgId}`;
+      const firstName = tgUser && tgUser.first_name ? tgUser.first_name : 'Puppy Miner';
+
+      state.tgId = tgId;
+      state.username = username;
+      state.firstName = first
