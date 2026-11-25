@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Puppy Miner — Telegram Mini App</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -180,7 +181,7 @@
               🐾
             </div>
             <span id="balance-display" class="text-3xl sm:text-4xl font-black tracking-tight text-white font-mono">
-              14,850.00
+              0.00
             </span>
             <span class="text-sm font-bold text-amber-400 self-end mb-1">$PUPPY</span>
           </div>
@@ -189,7 +190,7 @@
               ⚡ +<span id="passive-rate-label">180</span> $PUPPY/hr
             </span>
             <span class="text-slate-400">
-              ≈ $<span id="usd-estimate">29.70</span> USD
+              ≈ $<span id="usd-estimate">0.00</span> USD
             </span>
           </div>
         </div>
@@ -205,18 +206,18 @@
               </div>
               <div>
                 <div class="flex items-center gap-1.5">
-                  <span id="cycle-status-title" class="text-xs font-bold text-white" data-i18n="cycle_active_title">24h Mining In Progress</span>
-                  <span id="cycle-state-badge" class="px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-400 text-[9px] font-extrabold uppercase">ACTIVE</span>
+                  <span id="cycle-status-title" class="text-xs font-bold text-white" data-i18n="cycle_ready_title">Ready to Start 24h Mining</span>
+                  <span id="cycle-state-badge" class="px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-300 text-[9px] font-extrabold uppercase">READY</span>
                 </div>
                 <div class="text-[11px] text-slate-400">
                   <span data-i18n="session_mined">Session Mined:</span>
-                  <span id="session-mined-label" class="font-mono font-bold text-cyan-300">42.50</span> $PUPPY
+                  <span id="session-mined-label" class="font-mono font-bold text-cyan-300">0.00</span> $PUPPY
                 </div>
               </div>
             </div>
 
             <div class="text-right">
-              <div id="countdown-timer" class="text-sm font-black font-mono text-amber-300 tracking-tight">23:14:08</div>
+              <div id="countdown-timer" class="text-sm font-black font-mono text-amber-300 tracking-tight">24:00:00</div>
               <button type="button" onclick="fastForwardCycleDemo()" class="text-[10px] font-semibold text-cyan-400 hover:text-cyan-300 underline" data-i18n="demo_finish_btn">
                 Test End 24h
               </button>
@@ -256,7 +257,7 @@
                 stroke-width="7"
                 stroke-linecap="round"
                 stroke-dasharray="678.58"
-                stroke-dashoffset="655"
+                stroke-dashoffset="678.58"
                 class="transition-all duration-500"
               />
               <defs>
@@ -273,8 +274,8 @@
             <button id="mining-tap-btn" type="button" onclick="handleReactorInteraction(event)" class="mining-core relative w-44 h-44 rounded-full bg-gradient-to-b from-[#1E2633] via-[#131820] to-[#0B0E14] border-2 border-amber-400/60 gold-glow flex flex-col items-center justify-center cursor-pointer focus:outline-none">
               <div class="w-36 h-36 rounded-full bg-gradient-to-tr from-amber-500/20 via-yellow-400/10 to-cyan-400/20 border border-amber-300/30 flex flex-col items-center justify-center px-2 text-center">
                 <span id="reactor-emblem" class="text-4xl drop-shadow-[0_0_12px_rgba(251,191,36,0.75)] mb-1">🐶</span>
-                <span id="reactor-main-label" class="text-xs font-extrabold uppercase tracking-wider text-amber-300" data-i18n="tap_boost_speed">
-                  TAP TO BOOST SPEED
+                <span id="reactor-main-label" class="text-xs font-extrabold uppercase tracking-wider text-amber-300" data-i18n="start_24h_mining">
+                  START 24H MINING
                 </span>
                 <span id="reactor-sub-label" class="text-[11px] font-mono text-slate-300 mt-0.5">
                   +<span id="tap-power-label">2</span> $PUPPY • <span id="reactor-mult-pill">1.00x</span>
@@ -282,8 +283,8 @@
               </div>
             </button>
           </div>
-          <p id="reactor-helper-hint" class="text-[11px] text-slate-400 text-center mt-1" data-i18n="reactor_hint_active">
-            Tap rapidly to boost mining speed! Keeps mining 24h even if you stop.
+          <p id="reactor-helper-hint" class="text-[11px] text-slate-400 text-center mt-1" data-i18n="reactor_hint_ready">
+            Tap the orb to start your 24-hour automated Puppy mining cycle.
           </p>
         </div>
 
@@ -295,7 +296,7 @@
                 ⚡
               </div>
               <div class="text-xs font-bold text-white" data-i18n="boost_base_speed">Base Speed</div>
-              <div class="text-[10px] text-slate-400">Lvl <span id="lvl-baseSpeed">2</span> • +60/hr</div>
+              <div class="text-[10px] text-slate-400">Lvl <span id="lvl-baseSpeed">1</span> • +60/hr</div>
               <div class="mt-1.5 text-[11px] font-mono font-bold text-amber-400" id="cost-baseSpeed">500 $PUPPY</div>
             </button>
 
@@ -313,7 +314,7 @@
                 🐾
               </div>
               <div class="text-xs font-bold text-white" data-i18n="boost_tap_bonus">Tap Bonus</div>
-              <div class="text-[10px] text-slate-400">Lvl <span id="lvl-tapBonus">2</span> • +1/tap</div>
+              <div class="text-[10px] text-slate-400">Lvl <span id="lvl-tapBonus">1</span> • +1/tap</div>
               <div class="mt-1.5 text-[11px] font-mono font-bold text-emerald-400" id="cost-tapBonus">1,200 $PUPPY</div>
             </button>
           </div>
@@ -346,7 +347,7 @@
             <p class="text-xs text-slate-400" data-i18n="tasks_subtitle">Complete daily missions & social tasks for instant rewards.</p>
           </div>
           <div class="px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs font-bold text-amber-400">
-            🎯 <span id="tasks-completed-count">1</span>/5
+            🎯 <span id="tasks-completed-count">0</span>/5
           </div>
         </div>
 
@@ -361,7 +362,7 @@
               </div>
             </div>
             <button id="daily-claim-btn" type="button" onclick="claimDailyStreak()" class="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs transition active:scale-95">
-              <span data-i18n="checkin_btn">Claim Day 4</span>
+              <span data-i18n="checkin_btn">Claim Daily</span>
             </button>
           </div>
 
@@ -379,17 +380,17 @@
               <p class="text-[11px] text-slate-400" data-i18n="invite_desc">Get +1,000 $PUPPY + 10% of friends' mining!</p>
             </div>
             <button type="button" onclick="claimReferralRewards()" id="claim-ref-btn" class="px-2.5 py-1.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-300 font-bold text-[11px] transition active:scale-95">
-              +<span id="unclaimed-ref-amt">450</span> $PUPPY
+              +<span id="unclaimed-ref-amt">0</span> $PUPPY
             </button>
           </div>
 
           <div class="grid grid-cols-2 gap-2.5 text-center">
             <div class="p-2.5 rounded-xl bg-white/[0.03] border border-white/5">
-              <div class="text-lg font-black text-white font-mono">12</div>
+              <div id="invited-count-val" class="text-lg font-black text-white font-mono">0</div>
               <div class="text-[10px] text-slate-400" data-i18n="invited_count">Friends Invited</div>
             </div>
             <div class="p-2.5 rounded-xl bg-white/[0.03] border border-white/5">
-              <div class="text-lg font-black text-emerald-400 font-mono" id="total-ref-earned">+3,420</div>
+              <div class="text-lg font-black text-emerald-400 font-mono" id="total-ref-earned">+0</div>
               <div class="text-[10px] text-slate-400" data-i18n="ref_earnings">Referral Bonus ($PUPPY)</div>
             </div>
           </div>
@@ -399,26 +400,6 @@
             <button type="button" onclick="copyReferralLink('tasks-ref-link-input')" class="px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs transition active:scale-95 shrink-0">
               <span data-i18n="copy_btn">Copy</span>
             </button>
-          </div>
-
-          <div class="space-y-1.5 pt-1">
-            <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400" data-i18n="recent_friends">
-              Recently Joined Friends
-            </div>
-            <div class="flex items-center justify-between text-xs p-2 rounded-xl bg-white/[0.02] border border-white/5">
-              <div class="flex items-center gap-2">
-                <span class="w-6 h-6 rounded-full bg-cyan-500/20 text-cyan-300 flex items-center justify-center text-[10px] font-bold">JM</span>
-                <span class="font-semibold text-slate-200">@jean_mukozi</span>
-              </div>
-              <span class="font-mono text-[11px] text-emerald-400 font-bold">+1,180 $PUPPY</span>
-            </div>
-            <div class="flex items-center justify-between text-xs p-2 rounded-xl bg-white/[0.02] border border-white/5">
-              <div class="flex items-center gap-2">
-                <span class="w-6 h-6 rounded-full bg-amber-500/20 text-amber-300 flex items-center justify-center text-[10px] font-bold">AC</span>
-                <span class="font-semibold text-slate-200">@aline_crypto</span>
-              </div>
-              <span class="font-mono text-[11px] text-emerald-400 font-bold">+1,090 $PUPPY</span>
-            </div>
           </div>
         </div>
 
@@ -465,12 +446,12 @@
           <div class="grid grid-cols-2 gap-2.5">
             <div class="p-3 rounded-xl bg-white/[0.03] border border-white/5">
               <div class="text-[11px] text-slate-400" data-i18n="available_bal">Available Balance</div>
-              <div class="text-base font-black font-mono text-white mt-0.5"><span id="wallet-avail-balance">14,850</span></div>
+              <div class="text-base font-black font-mono text-white mt-0.5"><span id="wallet-avail-balance">0</span></div>
               <div class="text-[10px] text-amber-400 font-semibold">$PUPPY</div>
             </div>
             <div class="p-3 rounded-xl bg-white/[0.03] border border-white/5">
               <div class="text-[11px] text-slate-400" data-i18n="staked_bal">Staked / Locked</div>
-              <div class="text-base font-black font-mono text-cyan-300 mt-0.5">5,000</div>
+              <div class="text-base font-black font-mono text-cyan-300 mt-0.5">0</div>
               <div class="text-[10px] text-emerald-400 font-semibold">+18% APY</div>
             </div>
           </div>
@@ -514,10 +495,10 @@
             <div class="mt-2">
               <div class="flex justify-between text-[10px] font-semibold text-slate-300 mb-1">
                 <span>Gold League (Lvl 4)</span>
-                <span id="profile-xp-label">14.8K / 25K</span>
+                <span id="profile-xp-label">0.0K / 25K</span>
               </div>
               <div class="w-full h-1.5 rounded-full bg-slate-800 overflow-hidden">
-                <div id="profile-xp-bar" class="h-full rounded-full bg-gradient-to-r from-amber-500 to-yellow-300" style="width: 60%;"></div>
+                <div id="profile-xp-bar" class="h-full rounded-full bg-gradient-to-r from-amber-500 to-yellow-300" style="width: 0%;"></div>
               </div>
             </div>
           </div>
@@ -534,11 +515,11 @@
 
           <div class="grid grid-cols-2 gap-2.5 text-center">
             <div class="p-2.5 rounded-xl bg-white/[0.03] border border-white/5">
-              <div class="text-lg font-black text-white font-mono">12</div>
+              <div id="profile-invited-val" class="text-lg font-black text-white font-mono">0</div>
               <div class="text-[10px] text-slate-400" data-i18n="invited_count">Friends Invited</div>
             </div>
             <div class="p-2.5 rounded-xl bg-white/[0.03] border border-white/5">
-              <div class="text-lg font-black text-emerald-400 font-mono" id="profile-ref-earned">+3,420</div>
+              <div class="text-lg font-black text-emerald-400 font-mono" id="profile-ref-earned">+0</div>
               <div class="text-[10px] text-slate-400" data-i18n="ref_earnings">Referral Bonus ($PUPPY)</div>
             </div>
           </div>
@@ -638,7 +619,7 @@
         <div>
           <div class="flex justify-between text-[11px] mb-1">
             <span class="text-slate-300 font-semibold" data-i18n="withdraw_amt_label">Amount of $PUPPY to withdraw</span>
-            <button type="button" onclick="fillMaxWithdraw()" class="text-amber-400 font-bold hover:underline">MAX (<span id="modal-max-balance">14,850</span>)</button>
+            <button type="button" onclick="fillMaxWithdraw()" class="text-amber-400 font-bold hover:underline">MAX (<span id="modal-max-balance">0</span>)</button>
           </div>
           <input id="withdraw-amount-input" type="number" oninput="updateWithdrawPreview()" placeholder="5000" class="w-full px-3 py-2.5 rounded-xl bg-[#0B0F15] border border-white/15 text-xs font-mono text-white focus:border-amber-400 outline-none" />
           <div class="mt-1.5 flex items-center justify-between text-[11px] text-slate-400">
@@ -700,51 +681,58 @@
   </div>
 
   <script>
+    // =========================================================
+    // SUPABASE CONFIGURATION & CLIENT
+    // =========================================================
+    const SUPABASE_URL = 'https://ucpnxhymsudssnkzcczz.supabase.co';
+    const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_68WiMayny7vJ304FuMfocQ_wsZt6BlM';
+    const db = window.supabase
+      ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY)
+      : null;
+
     const CYCLE_DURATION_SEC = 24 * 60 * 60;
 
     const state = {
+      tgId: 849201743,
+      username: '@puppy_miner',
+      firstName: 'Puppy Miner',
       lang: 'en',
-      balance: 14850.00,
+      balance: 0.00,
       tapPower: 2,
       basePassiveRate: 180,
       speedMultiplier: 1.0,
       maxSpeedMultiplier: 3.0,
       lastTapTimestamp: 0,
-      cycleStatus: 'active',
-      cycleRemainingSec: 23 * 3600 + 14 * 60 + 8,
-      sessionMined: 42.50,
+      cycleStatus: 'ready', // 'ready' | 'active' | 'completed'
+      cycleStartedAt: null,
+      cycleRemainingSec: CYCLE_DURATION_SEC,
+      sessionMined: 0.00,
+      dailyStreak: 0,
+      lastCheckinDate: null,
+      dailyClaimedToday: false,
+      invitedCount: 0,
+      unclaimedRef: 0,
+      totalRefEarned: 0,
       walletConnected: false,
       walletAddress: 'UQD4...9kL2',
       hapticEnabled: true,
       soundEnabled: true,
-      dailyClaimed: false,
-      unclaimedRef: 450,
-      totalRefEarned: 3420,
       withdrawMethod: 'momo',
       momoNetwork: 'MTN MoMo',
       boosters: {
-        baseSpeed: { level: 2, cost: 500 },
+        baseSpeed: { level: 1, cost: 500 },
         maxBoost: { level: 1, cost: 750 },
-        tapBonus: { level: 2, cost: 1200 }
+        tapBonus: { level: 1, cost: 1200 }
       },
-      leaderboard: [
-        { rank: 1, name: '@alpha_puppy', badge: '👑', score: 284920, rate: '960/hr' },
-        { rank: 2, name: '@kigali_king', badge: '🥈', score: 192450, rate: '720/hr' },
-        { rank: 3, name: '@puppy_whales', badge: '🥉', score: 148300, rate: '600/hr' },
-        { rank: 4, name: '@puppy_miner (You)', badge: '🐶', score: 14850, rate: '180/hr', isMe: true }
-      ],
+      leaderboard: [],
       tasks: [
-        { id: 1, icon: '📢', titleEn: 'Join Official Telegram Channel', titleRw: 'Injira kuri Channel ya Telegram', reward: 1000, status: 'claimed' },
+        { id: 1, icon: '📢', titleEn: 'Join Official Telegram Channel', titleRw: 'Injira kuri Channel ya Telegram', reward: 1000, status: 'start' },
         { id: 2, icon: '🐦', titleEn: 'Follow @PuppyMiner on X (Twitter)', titleRw: 'Kurikira @PuppyMiner kuri X', reward: 750, status: 'start' },
         { id: 3, icon: '▶️', titleEn: 'Watch Mining Guide on YouTube', titleRw: 'Reba Video yuko bakora Mining', reward: 1200, status: 'start' },
         { id: 4, icon: '💎', titleEn: 'Connect TON Wallet', titleRw: 'Huza Wallet yawe ya TON', reward: 2000, status: 'start' },
         { id: 5, icon: '🤝', titleEn: 'Invite 3 Active Friends', titleRw: 'Tumira inshuti 3 zikora Mining', reward: 3000, status: 'start' }
       ],
-      transactions: [
-        { id: 'tx1', typeEn: '24h Mining Cycle Claim', typeRw: 'Ibihembo bya Mining 24h', amount: '+180.00 $PUPPY', time: '2h ago', positive: true },
-        { id: 'tx2', typeEn: 'Telegram Channel Task', typeRw: 'Task ya Telegram', amount: '+1,000.00 $PUPPY', time: 'Yesterday', positive: true },
-        { id: 'tx3', typeEn: 'Base Speed Upgrade (Lvl 2)', typeRw: 'Kuzamura Base Speed', amount: '-250.00 $PUPPY', time: '2 days ago', positive: false }
-      ]
+      transactions: []
     };
 
     const i18n = {
@@ -772,10 +760,9 @@
         tasks_subtitle: 'Complete daily missions & social tasks for instant rewards.',
         daily_checkin: 'Daily Check-in',
         daily_streak_sub: '7-day streak unlocks 5,000 $PUPPY bonus',
-        checkin_btn: 'Claim Day 4',
+        checkin_btn: 'Claim Daily',
         checkin_done: 'Claimed ✓',
         ref_hub_title: 'Referrals Hub',
-        recent_friends: 'Recently Joined Friends',
         social_tasks_header: 'Social & Community Tasks',
         wallet_title: 'TON & Crypto Wallet',
         wallet_disconnected: 'Connect Tonkeeper or Telegram Wallet',
@@ -835,10 +822,9 @@
         tasks_subtitle: 'Kora ama-task ya buri munsi ubone ibihembo ako kanya.',
         daily_checkin: 'Ibihembo bya Buri Munsi',
         daily_streak_sub: 'Iminsi 7 ikurikirana ihesha 5,000 $PUPPY',
-        checkin_btn: 'Fata Umunsi wa 4',
+        checkin_btn: 'Fata Uyu Munsi',
         checkin_done: 'Byafashwe ✓',
         ref_hub_title: 'Abatumiwe (Referrals Hub)',
-        recent_friends: 'Inshuti Zawe Ziheruka Kwinjira',
         social_tasks_header: 'Ama-Task yo ku Mbuga Nkoranyambaga',
         wallet_title: 'Wallet ya TON & Crypto',
         wallet_disconnected: 'Huza Tonkeeper cyangwa Telegram Wallet',
@@ -877,759 +863,102 @@
     };
 
     // =========================================================
-    // NAVIGATION, FEEDBACK & TOAST HELPERS
+    // SUPABASE DATABASE SYNC FUNCTIONS
     // =========================================================
-    function switchTab(tabName) {
-      document.querySelectorAll('.tab-pane').forEach(pane => {
-        pane.classList.remove('active');
-      });
-      const targetPane = document.getElementById(`tab-${tabName}`);
-      if (targetPane) {
-        targetPane.classList.add('active');
+    function calcBoosterCost(baseCost, level) {
+      let cost = baseCost;
+      for (let i = 1; i < level; i++) {
+        cost = Math.round(cost * 1.65);
       }
-
-      document.querySelectorAll('.nav-btn').forEach(btn => {
-        const isTarget = btn.getAttribute('data-tab') === tabName;
-        if (isTarget) {
-          btn.classList.add('active', 'text-amber-400', 'bg-amber-500/10');
-          btn.classList.remove('text-slate-400');
-        } else {
-          btn.classList.remove('active', 'text-amber-400', 'bg-amber-500/10');
-          btn.classList.add('text-slate-400');
-        }
-      });
-
-      triggerHaptic(8);
-      updateUI();
+      return cost;
     }
 
-    let toastTimeout = null;
-    function showToast(message, icon = '✨') {
-      const banner = document.getElementById('toast-banner');
-      document.getElementById('toast-icon').textContent = icon;
-      document.getElementById('toast-message').textContent = message;
-
-      banner.classList.remove('opacity-0', 'translate-y-3');
-      banner.classList.add('opacity-100', 'translate-y-0');
-
-      clearTimeout(toastTimeout);
-      toastTimeout = setTimeout(() => {
-        banner.classList.remove('opacity-100', 'translate-y-0');
-        banner.classList.add('opacity-0', 'translate-y-3');
-      }, 2400);
+    function getTodayISO() {
+      return new Date().toISOString().slice(0, 10);
     }
 
-    function triggerHaptic(ms = 12) {
-      if (!state.hapticEnabled) return;
+    async function syncUserWithDatabase(tgUser, startParam = '') {
+      if (!db) return;
       try {
-        if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.HapticFeedback) {
-          window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
-        } else if (navigator.vibrate) {
-          navigator.vibrate(ms);
-        }
-      } catch (e) {}
-    }
-
-    let audioCtx = null;
-    function playTone(freq = 640, duration = 0.08, type = 'sine') {
-      if (!state.soundEnabled) return;
-      try {
-        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-        if (!AudioContextClass) return;
-        if (!audioCtx) audioCtx = new AudioContextClass();
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = type;
-        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-        gain.gain.setValueAtTime(0.06, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
-
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + duration);
-      } catch (e) {}
-    }
-
-    // =========================================================
-    // HOME: 24H REACTOR, TAP-TO-BOOST SPEED & BOOSTERS
-    // =========================================================
-    function formatSecondsHMS(totalSec) {
-      const s = Math.max(0, Math.floor(totalSec));
-      const hrs = String(Math.floor(s / 3600)).padStart(2, '0');
-      const mins = String(Math.floor((s % 3600) / 60)).padStart(2, '0');
-      const secs = String(s % 60).padStart(2, '0');
-      return `${hrs}:${mins}:${secs}`;
-    }
-
-    function spawnFloatingParticle(e, text) {
-      const rect = e && e.currentTarget ? e.currentTarget.getBoundingClientRect() : null;
-      const clientX = (e && e.clientX) || (rect ? rect.left + rect.width / 2 : window.innerWidth / 2);
-      const clientY = (e && e.clientY) || (rect ? rect.top + rect.height / 2 : window.innerHeight / 2);
-
-      const floater = document.createElement('div');
-      floater.className = 'floating-number';
-      floater.textContent = text;
-      floater.style.left = `${clientX - 24}px`;
-      floater.style.top = `${clientY - 24}px`;
-      document.body.appendChild(floater);
-      setTimeout(() => floater.remove(), 850);
-    }
-
-    function handleReactorInteraction(e) {
-      if (state.cycleStatus === 'completed') {
-        const reward = Math.max(100, Number(state.sessionMined.toFixed(2)));
-        state.balance += reward;
-        addTransaction('24h Mining Cycle Claim', 'Ibihembo bya Mining 24h', `+${reward.toFixed(2)} $PUPPY`, true);
-        state.sessionMined = 0;
-        state.cycleRemainingSec = CYCLE_DURATION_SEC;
-        state.cycleStatus = 'active';
-        state.speedMultiplier = 1.0;
-        triggerHaptic(30);
-        playTone(860, 0.16, 'sine');
-        spawnFloatingParticle(e, `+${reward.toFixed(0)} $PUPPY!`);
-        showToast(
-          state.lang === 'en'
-            ? `Claimed +${reward.toFixed(2)} $PUPPY! New 24h mining started.`
-            : `Wabonye +${reward.toFixed(2)} $PUPPY! Indi 24h itangiye.`,
-          '🎉'
-        );
-        updateUI();
-        return;
-      }
-
-      if (state.cycleStatus === 'ready') {
-        state.cycleStatus = 'active';
-        state.cycleRemainingSec = CYCLE_DURATION_SEC;
-        state.sessionMined = 0;
-        state.speedMultiplier = 1.15;
-        state.lastTapTimestamp = Date.now();
-        triggerHaptic(22);
-        playTone(720, 0.12, 'sine');
-        spawnFloatingParticle(e, '24H STARTED!');
-        showToast(
-          state.lang === 'en'
-            ? '24-Hour Mining Started! Tap to boost speed.'
-            : 'Mining y’amasaha 24 itangiye! Kanda wongere umuvuduko.',
-          '🚀'
-        );
-        updateUI();
-        return;
-      }
-
-      state.lastTapTimestamp = Date.now();
-      state.speedMultiplier = Math.min(
-        state.maxSpeedMultiplier,
-        Number((state.speedMultiplier + 0.08).toFixed(2))
-      );
-
-      const tapEarned = Number((state.tapPower * state.speedMultiplier).toFixed(2));
-      state.balance += tapEarned;
-      state.sessionMined += tapEarned;
-
-      triggerHaptic(14);
-      playTone(580 + state.speedMultiplier * 140, 0.055, 'triangle');
-      spawnFloatingParticle(e, `+${tapEarned.toFixed(1)} (${state.speedMultiplier.toFixed(2)}x)`);
-
-      updateUI();
-    }
-
-    function fastForwardCycleDemo() {
-      if (state.cycleStatus !== 'active') return;
-      state.cycleRemainingSec = 0;
-      state.cycleStatus = 'completed';
-      state.speedMultiplier = 1.0;
-      triggerHaptic(25);
-      playTone(820, 0.14, 'sine');
-      showToast(
-        state.lang === 'en'
-          ? '24h cycle complete! Tap the Puppy orb to claim & restart.'
-          : 'Amasaha 24 ararangiye! Kanda ku mupira ufate ibihembo.',
-        '⏰'
-      );
-      updateUI();
-    }
-
-    function upgradeBooster(type) {
-      const b = state.boosters[type];
-      if (!b) return;
-      if (state.balance < b.cost) {
-        showToast(state.lang === 'en' ? 'Insufficient $PUPPY balance!' : 'Ntabwo ufite $PUPPY zihagije!', '⚠️');
-        return;
-      }
-
-      state.balance -= b.cost;
-      b.level += 1;
-      const oldCost = b.cost;
-      b.cost = Math.round(b.cost * 1.65);
-
-      if (type === 'baseSpeed') {
-        state.basePassiveRate += 60;
-        addTransaction(`Base Speed Upgrade (Lvl ${b.level})`, `Kuzamura Base Speed (Lvl ${b.level})`, `-${oldCost} $PUPPY`, false);
-      } else if (type === 'maxBoost') {
-        state.maxSpeedMultiplier = Number((state.maxSpeedMultiplier + 0.5).toFixed(1));
-        addTransaction(`Max Multiplier (Lvl ${b.level})`, `Kuzamura Inshuro Ntarengwa (Lvl ${b.level})`, `-${oldCost} $PUPPY`, false);
-      } else if (type === 'tapBonus') {
-        state.tapPower += 1;
-        addTransaction(`Tap Bonus Upgrade (Lvl ${b.level})`, `Kuzamura Inyungu yo Gukanda (Lvl ${b.level})`, `-${oldCost} $PUPPY`, false);
-      }
-
-      triggerHaptic(20);
-      playTone(840, 0.12, 'sine');
-      showToast(state.lang === 'en' ? `Upgraded to Level ${b.level}!` : `Byazamuwe ku rwego rwa ${b.level}!`, '🚀');
-      updateUI();
-    }
-
-    // =========================================================
-    // TASKS & DAILY STREAK
-    // =========================================================
-    function renderStreak() {
-      const grid = document.getElementById('streak-grid');
-      const rewards = ['100', '250', '500', '1K', '1.5K', '2.5K', '5K'];
-      grid.innerHTML = rewards.map((amt, idx) => {
-        const day = idx + 1;
-        const isPast = day < 4 || (day === 4 && state.dailyClaimed);
-        const isToday = day === 4 && !state.dailyClaimed;
-        return `
-          <div class="rounded-xl py-2 px-1 border ${
-            isToday
-              ? 'bg-amber-500/20 border-amber-400 text-amber-300 shadow-md shadow-amber-500/10'
-              : isPast
-              ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
-              : 'bg-white/[0.02] border-white/5 text-slate-500'
-          }">
-            <div class="text-[9px] font-bold">D${day}</div>
-            <div class="text-[11px] font-black font-mono mt-0.5">${isPast ? '✓' : amt}</div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    function claimDailyStreak() {
-      if (state.dailyClaimed) {
-        showToast(state.lang === 'rw' ? 'Ibihembo by’uyu munsi wamaze kubifata!' : 'Today’s check-in already claimed!', '✅');
-        return;
-      }
-      state.dailyClaimed = true;
-      state.balance += 1000;
-      const btn = document.getElementById('daily-claim-btn');
-      btn.classList.remove('bg-amber-500', 'hover:bg-amber-400', 'text-slate-950');
-      btn.classList.add('bg-emerald-500/20', 'text-emerald-400', 'border', 'border-emerald-500/30');
-      btn.innerHTML = `<span>${i18n[state.lang].checkin_done}</span>`;
-      addTransaction('Daily Check-in (Day 4)', 'Igihembo cy’Umunsi wa 4', '+1,000.00 $PUPPY', true);
-      triggerHaptic(30);
-      playTone(880, 0.15, 'sine');
-      showToast('+1,000 $PUPPY Daily Bonus!', '🔥');
-      renderStreak();
-      updateUI();
-    }
-
-    function renderTasks() {
-      const container = document.getElementById('task-list-container');
-      const dict = i18n[state.lang];
-      let completedCount = 0;
-
-      container.innerHTML = state.tasks.map(task => {
-        if (task.status === 'claimed') completedCount++;
-        const title = state.lang === 'en' ? task.titleEn : task.titleRw;
-
-        let btnHtml = '';
-        if (task.status === 'claimed') {
-          btnHtml = `<span class="px-3 py-1.5 rounded-xl bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-xs font-bold">✓ ${dict.task_done}</span>`;
-        } else if (task.status === 'verifying') {
-          btnHtml = `<button type="button" disabled class="px-3.5 py-1.5 rounded-xl bg-cyan-500/20 text-cyan-300 text-xs font-bold animate-pulse">${dict.task_verify}...</button>`;
-        } else if (task.status === 'claim') {
-          btnHtml = `<button type="button" onclick="handleTaskClick(${task.id})" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 font-extrabold text-xs shadow-md active:scale-95 transition">${dict.task_claim}</button>`;
-        } else {
-          btnHtml = `<button type="button" onclick="handleTaskClick(${task.id})" class="px-3.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-bold text-xs active:scale-95 transition">${dict.task_start}</button>`;
-        }
-
-        return `
-          <div class="glass-card rounded-2xl p-3 flex items-center justify-between gap-3">
-            <div class="flex items-center gap-3 min-w-0">
-              <div class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-lg shrink-0">
-                ${task.icon}
-              </div>
-              <div class="min-w-0">
-                <div class="text-xs font-bold text-white truncate">${title}</div>
-                <div class="text-[11px] font-mono font-bold text-amber-400 mt-0.5">+${task.reward.toLocaleString()} $PUPPY</div>
-              </div>
-            </div>
-            <div class="shrink-0">${btnHtml}</div>
-          </div>
-        `;
-      }).join('');
-
-      document.getElementById('tasks-completed-count').textContent = completedCount;
-      const navDot = document.getElementById('task-nav-dot');
-      if (completedCount === state.tasks.length) {
-        navDot.classList.add('hidden');
-      } else {
-        navDot.classList.remove('hidden');
-      }
-    }
-
-    function handleTaskClick(taskId) {
-      const task = state.tasks.find(t => t.id === taskId);
-      if (!task) return;
-
-      if (task.status === 'start') {
-        triggerHaptic(10);
-        task.status = 'verifying';
-        renderTasks();
-        showToast(state.lang === 'en' ? 'Verifying task completion...' : 'Turi kugenzura ko warangije task...', '🔍');
-        setTimeout(() => {
-          task.status = 'claim';
-          renderTasks();
-          playTone(680, 0.08, 'sine');
-        }, 1200);
-      } else if (task.status === 'claim') {
-        task.status = 'claimed';
-        state.balance += task.reward;
-        addTransaction(task.titleEn, task.titleRw, `+${task.reward.toLocaleString()} $PUPPY`, true);
-        triggerHaptic(25);
-        playTone(920, 0.15, 'sine');
-        showToast(`+${task.reward.toLocaleString()} $PUPPY ${state.lang === 'en' ? 'earned!' : 'byabitswe!'}`, '🎉');
-        renderTasks();
-        updateUI();
-      }
-    }
-
-    function renderLeaderboard() {
-      const container = document.getElementById('leaderboard-list');
-      if (!container) return;
-      const currentEffectiveRate = Math.round(state.basePassiveRate * state.speedMultiplier);
-      state.leaderboard[3].score = Math.floor(state.balance);
-      state.leaderboard[3].rate = `${currentEffectiveRate}/hr`;
-      state.leaderboard[3].name = state.lang === 'rw' ? '@puppy_miner (Wowe)' : '@puppy_miner (You)';
-
-      container.innerHTML = state.leaderboard.map(item => `
-        <div class="flex items-center justify-between p-2 rounded-xl ${
-          item.isMe
-            ? 'bg-amber-500/15 border border-amber-400/40'
-            : 'bg-white/[0.03] border border-white/5'
-        }">
-          <div class="flex items-center gap-2.5 min-w-0">
-            <span class="w-6 h-6 rounded-lg bg-white/5 flex items-center justify-center text-xs font-bold shrink-0">
-              ${item.badge}
-            </span>
-            <div class="min-w-0">
-              <div class="text-xs font-bold ${item.isMe ? 'text-amber-300' : 'text-white'} truncate">${item.name}</div>
-              <div class="text-[10px] text-slate-400">⚡ ${item.rate}</div>
-            </div>
-          </div>
-          <div class="text-xs font-mono font-extrabold ${item.isMe ? 'text-amber-300' : 'text-cyan-300'} shrink-0">
-            ${item.score.toLocaleString()} $PUPPY
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function claimReferralRewards() {
-      if (state.unclaimedRef <= 0) {
-        showToast(state.lang === 'rw' ? 'Nta bihembo bishya by’inshuti biraboneka!' : 'No new referral rewards yet!', '⏳');
-        return;
-      }
-      const amt = state.unclaimedRef;
-      state.balance += amt;
-      state.totalRefEarned += amt;
-      state.unclaimedRef = 0;
-      addTransaction('Referral Commission Claim', 'Ibihembo by’Abatumiwe', `+${amt.toFixed(2)} $PUPPY`, true);
-      triggerHaptic(22);
-      playTone(860, 0.14, 'sine');
-      showToast(`+${amt} $PUPPY ${state.lang === 'rw' ? 'byabitswe!' : 'claimed!'}`, '🤝');
-      updateUI();
-    }
-
-    // =========================================================
-    // WALLET, WITHDRAW MODAL & TRANSACTIONS
-    // =========================================================
-    function toggleWalletConnection() {
-      triggerHaptic(18);
-      state.walletConnected = !state.walletConnected;
-      const btn = document.getElementById('connect-wallet-btn');
-      const label = document.getElementById('connect-wallet-label');
-      const statusText = document.getElementById('wallet-status-text');
-
-      if (state.walletConnected) {
-        btn.classList.remove('from-cyan-500', 'to-blue-500', 'text-slate-950');
-        btn.classList.add('bg-emerald-500/15', 'border', 'border-emerald-500/40', 'text-emerald-300');
-        label.textContent =
-          state.lang === 'en'
-            ? `Connected (${state.walletAddress}) • Disconnect`
-            : `Yarahujwe (${state.walletAddress}) • Kuraho`;
-        statusText.textContent =
-          state.lang === 'en' ? 'Tonkeeper Wallet Active • Ready for Airdrop' : 'Tonkeeper Iri Gukora • Yiteguye Airdrop';
-        playTone(760, 0.12, 'sine');
-        showToast(state.lang === 'en' ? 'TON Wallet connected!' : 'TON Wallet yahujwe neza!', '💎');
-      } else {
-        btn.classList.add('from-cyan-500', 'to-blue-500', 'text-slate-950');
-        btn.classList.remove('bg-emerald-500/15', 'border', 'border-emerald-500/40', 'text-emerald-300');
-        label.textContent = i18n[state.lang].connect_ton_btn;
-        statusText.textContent = i18n[state.lang].wallet_disconnected;
-        showToast(state.lang === 'en' ? 'Wallet disconnected' : 'Wallet yakuweho', '🔌');
-      }
-    }
-
-    function openWithdrawModal() {
-      triggerHaptic(12);
-      document.getElementById('modal-max-balance').textContent = Math.floor(state.balance).toLocaleString();
-      document.getElementById('withdraw-modal').classList.remove('hidden');
-      document.getElementById('withdraw-modal').classList.add('flex');
-      selectWithdrawMethod(state.withdrawMethod);
-      updateWithdrawPreview();
-    }
-
-    function closeWithdrawModal() {
-      document.getElementById('withdraw-modal').classList.add('hidden');
-      document.getElementById('withdraw-modal').classList.remove('flex');
-    }
-
-    function selectWithdrawMethod(method) {
-      state.withdrawMethod = method;
-      const momoBtn = document.getElementById('method-momo-btn');
-      const tonBtn = document.getElementById('method-ton-btn');
-      const momoBox = document.getElementById('momo-provider-box');
-      const destLabel = document.getElementById('withdraw-dest-label');
-      const destInput = document.getElementById('withdraw-dest-input');
-
-      if (method === 'momo') {
-        momoBtn.className = 'p-2.5 rounded-xl border border-amber-400 bg-amber-500/15 text-left transition';
-        tonBtn.className = 'p-2.5 rounded-xl border border-white/10 bg-white/5 text-left transition';
-        momoBox.classList.remove('hidden');
-        destLabel.textContent = i18n[state.lang].momo_phone_label;
-        destInput.placeholder = '0788 123 456';
-        destInput.value = '';
-      } else {
-        tonBtn.className = 'p-2.5 rounded-xl border border-cyan-400 bg-cyan-500/15 text-left transition';
-        momoBtn.className = 'p-2.5 rounded-xl border border-white/10 bg-white/5 text-left transition';
-        momoBox.classList.add('hidden');
-        destLabel.textContent = i18n[state.lang].ton_addr_label;
-        destInput.placeholder = 'UQD4x8...9kL2';
-        destInput.value = state.walletConnected ? state.walletAddress : '';
-      }
-      updateWithdrawPreview();
-    }
-
-    function selectMomoNetwork(network) {
-      state.momoNetwork = network;
-      const mtn = document.getElementById('net-mtn');
-      const airtel = document.getElementById('net-airtel');
-      if (network === 'MTN MoMo') {
-        mtn.className = 'flex-1 py-1.5 rounded-lg bg-yellow-400/20 border border-yellow-400 text-yellow-300 text-[11px] font-extrabold';
-        airtel.className = 'flex-1 py-1.5 rounded-lg bg-white/5 border border-white/10 text-slate-400 text-[11px] font-bold';
-      } else {
-        airtel.className = 'flex-1 py-1.5 rounded-lg bg-rose-500/20 border border-rose-400 text-rose-300 text-[11px] font-extrabold';
-        mtn.className = 'flex-1 py-1.5 rounded-lg bg-white/5 border border-white/10 text-slate-400 text-[11px] font-bold';
-      }
-      updateWithdrawPreview();
-    }
-
-    function fillMaxWithdraw() {
-      document.getElementById('withdraw-amount-input').value = Math.floor(state.balance);
-      updateWithdrawPreview();
-    }
-
-    function updateWithdrawPreview() {
-      const amt = parseFloat(document.getElementById('withdraw-amount-input').value) || 0;
-      const preview = document.getElementById('withdraw-receive-preview');
-      if (state.withdrawMethod === 'momo') {
-        const rwf = Math.floor(amt * 2.8);
-        preview.textContent = `${rwf.toLocaleString()} RWF (${state.momoNetwork})`;
-      } else {
-        const ton = (amt * 0.00038).toFixed(3);
-        preview.textContent = `${ton} TON`;
-      }
-    }
-
-    function submitWithdrawal() {
-      const dest = document.getElementById('withdraw-dest-input').value.trim();
-      const amt = parseFloat(document.getElementById('withdraw-amount-input').value) || 0;
-
-      if (!dest) {
-        showToast(state.lang === 'rw' ? 'Andika nimero cyangwa aderesi!' : 'Enter destination number or address!', '⚠️');
-        return;
-      }
-      if (amt < 2000) {
-        showToast(state.lang === 'rw' ? 'Kubikuza bihera kuri 2,000 $PUPPY!' : 'Minimum withdrawal is 2,000 $PUPPY!', '⚠️');
-        return;
-      }
-      if (amt > state.balance) {
-        showToast(state.lang === 'rw' ? 'Ntabwo ufite $PUPPY zihagije!' : 'Insufficient $PUPPY balance!', '⚠️');
-        return;
-      }
-
-      state.balance -= amt;
-      const channel = state.withdrawMethod === 'momo' ? state.momoNetwork : 'TON Wallet';
-      addTransaction(
-        `Withdraw to ${channel}`,
-        `Kubikuza kuri ${channel} (${dest.slice(0, 10)})`,
-        `-${amt.toLocaleString()} $PUPPY`,
-        false
-      );
-      closeWithdrawModal();
-      triggerHaptic(30);
-      playTone(880, 0.16, 'sine');
-      showToast(
-        state.lang === 'rw'
-          ? `Ubusabe bwo kubikuza ${amt.toLocaleString()} $PUPPY bwoherejwe!`
-          : `Withdrawal of ${amt.toLocaleString()} $PUPPY submitted!`,
-        '✅'
-      );
-      updateUI();
-    }
-
-    function handleWalletAction() {
-      if (!state.walletConnected) {
-        showToast(state.lang === 'en' ? 'Please connect your TON Wallet first!' : 'Banza uhuze TON Wallet yawe!', '💎');
-        return;
-      }
-      triggerHaptic(12);
-      const tonVal = (state.balance * 0.00038).toFixed(2);
-      showToast(`Est. Swap: ${Math.floor(state.balance).toLocaleString()} $PUPPY ≈ ${tonVal} TON`, '🔄');
-    }
-
-    function addTransaction(typeEn, typeRw, amount, positive) {
-      state.transactions.unshift({
-        id: 'tx_' + Date.now(),
-        typeEn,
-        typeRw,
-        amount,
-        time: state.lang === 'en' ? 'Just now' : 'Ako kanya',
-        positive
-      });
-      renderTransactions();
-    }
-
-    function renderTransactions() {
-      const container = document.getElementById('tx-history-list');
-      container.innerHTML = state.transactions.slice(0, 6).map(tx => {
-        const title = state.lang === 'en' ? tx.typeEn : tx.typeRw;
-        return `
-          <div class="glass-card rounded-xl p-3 flex items-center justify-between">
-            <div class="flex items-center gap-2.5">
-              <div class="w-8 h-8 rounded-lg ${tx.positive ? 'bg-emerald-500/15 text-emerald-400' : 'bg-amber-500/15 text-amber-400'} flex items-center justify-center text-xs font-bold">
-                ${tx.positive ? '↓' : '↑'}
-              </div>
-              <div>
-                <div class="text-xs font-bold text-white">${title}</div>
-                <div class="text-[10px] text-slate-400">${tx.time}</div>
-              </div>
-            </div>
-            <div class="text-xs font-mono font-bold ${tx.positive ? 'text-emerald-400' : 'text-amber-400'}">
-              ${tx.amount}
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    // =========================================================
-    // PROFILE: COPY REFERRAL, TOGGLES & LANGUAGE SWITCHER
-    // =========================================================
-    function copyReferralLink(inputId = 'ref-link-input') {
-      const input = document.getElementById(inputId);
-      if (!input) return;
-      input.select();
-      input.setSelectionRange(0, 99999);
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(input.value).catch(() => {});
-      }
-      try {
-        document.execCommand('copy');
-      } catch (e) {}
-      triggerHaptic(15);
-      playTone(720, 0.08, 'sine');
-      showToast(state.lang === 'en' ? 'Invite link copied to clipboard!' : 'Link yo gutumira yakoporowe!', '📋');
-    }
-
-    function toggleSwitch(btn) {
-      const isOn = btn.classList.contains('bg-emerald-500');
-      if (isOn) {
-        btn.classList.remove('bg-emerald-500', 'justify-end');
-        btn.classList.add('bg-slate-700', 'justify-start');
-      } else {
-        btn.classList.add('bg-emerald-500', 'justify-end');
-        btn.classList.remove('bg-slate-700', 'justify-start');
-      }
-      if (btn.id === 'toggle-haptic') state.hapticEnabled = !isOn;
-      if (btn.id === 'toggle-sound') state.soundEnabled = !isOn;
-      triggerHaptic(10);
-    }
-
-    function toggleLanguage() {
-      state.lang = state.lang === 'en' ? 'rw' : 'en';
-      const dict = i18n[state.lang];
-
-      document.getElementById('lang-badge').textContent = state.lang.toUpperCase();
-      document.getElementById('settings-lang-label').textContent = state.lang === 'en' ? 'English (EN)' : 'Ikinyarwanda (RW)';
-
-      document.querySelectorAll('[data-i18n]').forEach(el => {
-        const key = el.getAttribute('data-i18n');
-        if (dict[key]) {
-          el.textContent = dict[key];
-        }
-      });
-
-      if (state.dailyClaimed) {
-        document.getElementById('daily-claim-btn').innerHTML = `<span>${dict.checkin_done}</span>`;
-      }
-      if (state.walletConnected) {
-        document.getElementById('connect-wallet-label').textContent =
-          state.lang === 'en' ? `Connected (${state.walletAddress}) • Disconnect` : `Yarahujwe (${state.walletAddress}) • Kuraho`;
-      }
-
-      renderTasks();
-      renderTransactions();
-      renderLeaderboard();
-      updateUI();
-      triggerHaptic(10);
-      showToast(state.lang === 'en' ? 'Switched to English' : 'Byahinduwe mu Kinyarwanda', '🌐');
-    }
-
-    // =========================================================
-    // REAL-TIME UI SYNC & 24-HOUR MINING ENGINE
-    // =========================================================
-    function updateUI() {
-      const dict = i18n[state.lang];
-      const effectiveRate = state.cycleStatus === 'active'
-        ? Math.round(state.basePassiveRate * state.speedMultiplier)
-        : 0;
-
-      document.getElementById('balance-display').textContent = state.balance.toLocaleString('en-US', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-      });
-      document.getElementById('usd-estimate').textContent = (state.balance * 0.002).toFixed(2);
-      document.getElementById('wallet-avail-balance').textContent = Math.floor(state.balance).toLocaleString();
-      document.getElementById('unclaimed-ref-amt').textContent = Math.floor(state.unclaimedRef).toLocaleString();
-      document.getElementById('total-ref-earned').textContent = `+${Math.floor(state.totalRefEarned).toLocaleString()}`;
-      document.getElementById('profile-ref-earned').textContent = `+${Math.floor(state.totalRefEarned).toLocaleString()}`;
-
-      const xpGoal = 25000;
-      const xpPct = Math.min(100, Math.round((state.balance / xpGoal) * 100));
-      document.getElementById('profile-xp-label').textContent = `${(state.balance / 1000).toFixed(1)}K / 25K`;
-      document.getElementById('profile-xp-bar').style.width = `${xpPct}%`;
-
-      document.getElementById('tap-power-label').textContent = state.tapPower;
-      document.getElementById('passive-rate-label').textContent = effectiveRate;
-      document.getElementById('effective-rate-label').textContent = effectiveRate;
-      document.getElementById('session-mined-label').textContent = state.sessionMined.toFixed(2);
-      document.getElementById('countdown-timer').textContent = formatSecondsHMS(state.cycleRemainingSec);
-
-      document.getElementById('speed-multiplier-label').textContent = `${state.speedMultiplier.toFixed(2)}x`;
-      document.getElementById('reactor-mult-pill').textContent = `${state.speedMultiplier.toFixed(2)}x`;
-      const boostPct = ((state.speedMultiplier - 1.0) / Math.max(0.1, state.maxSpeedMultiplier - 1.0)) * 100;
-      document.getElementById('speed-boost-bar').style.width = `${Math.min(100, Math.max(0, boostPct))}%`;
-
-      const circumference = 678.58;
-      const elapsedRatio = state.cycleStatus === 'completed'
-        ? 1
-        : state.cycleStatus === 'ready'
-        ? 0
-        : (CYCLE_DURATION_SEC - state.cycleRemainingSec) / CYCLE_DURATION_SEC;
-      const dashOffset = circumference * (1 - Math.min(1, Math.max(0, elapsedRatio)));
-      document.getElementById('cycle-progress-ring').style.strokeDashoffset = dashOffset.toFixed(2);
-
-      const statusTitle = document.getElementById('cycle-status-title');
-      const stateBadge = document.getElementById('cycle-state-badge');
-      const mainLabel = document.getElementById('reactor-main-label');
-      const hintLabel = document.getElementById('reactor-helper-hint');
-      const emblem = document.getElementById('reactor-emblem');
-
-      if (state.cycleStatus === 'completed') {
-        statusTitle.textContent = dict.cycle_completed_title;
-        stateBadge.textContent = '100% DONE';
-        stateBadge.className = 'px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[9px] font-extrabold uppercase animate-pulse';
-        mainLabel.textContent = dict.claim_restart_24h;
-        hintLabel.textContent = dict.reactor_hint_completed;
-        emblem.textContent = '🎁';
-      } else if (state.cycleStatus === 'ready') {
-        statusTitle.textContent = dict.cycle_ready_title;
-        stateBadge.textContent = 'READY';
-        stateBadge.className = 'px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-300 text-[9px] font-extrabold uppercase';
-        mainLabel.textContent = dict.start_24h_mining;
-        hintLabel.textContent = dict.reactor_hint_ready;
-        emblem.textContent = '🐶';
-      } else {
-        statusTitle.textContent = dict.cycle_active_title;
-        stateBadge.textContent = state.speedMultiplier > 1.05 ? 'BOOSTED' : 'ACTIVE';
-        stateBadge.className = state.speedMultiplier > 1.05
-          ? 'px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[9px] font-extrabold uppercase'
-          : 'px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-400 text-[9px] font-extrabold uppercase';
-        mainLabel.textContent = dict.tap_boost_speed;
-        hintLabel.textContent = dict.reactor_hint_active;
-        emblem.textContent = state.speedMultiplier >= 2.0 ? '🔥' : '🐶';
-      }
-
-      document.getElementById('lvl-baseSpeed').textContent = state.boosters.baseSpeed.level;
-      document.getElementById('cost-baseSpeed').textContent = `${state.boosters.baseSpeed.cost.toLocaleString()} $PUPPY`;
-
-      document.getElementById('lvl-maxBoost').textContent = state.boosters.maxBoost.level;
-      document.getElementById('cost-maxBoost').textContent = `${state.boosters.maxBoost.cost.toLocaleString()} $PUPPY`;
-
-      document.getElementById('lvl-tapBonus').textContent = state.boosters.tapBonus.level;
-      document.getElementById('cost-tapBonus').textContent = `${state.boosters.tapBonus.cost.toLocaleString()} $PUPPY`;
-
-      renderLeaderboard();
-    }
-
-    setInterval(() => {
-      if (state.cycleStatus === 'active') {
-        state.cycleRemainingSec = Math.max(0, state.cycleRemainingSec - 0.25);
-
-        const perQuarterSec = (state.basePassiveRate * state.speedMultiplier) / 14400;
-        state.balance += perQuarterSec;
-        state.sessionMined += perQuarterSec;
-
-        if (Date.now() - state.lastTapTimestamp > 700 && state.speedMultiplier > 1.0) {
-          state.speedMultiplier = Math.max(1.0, Number((state.speedMultiplier - 0.04).toFixed(2)));
-        }
-
-        if (state.cycleRemainingSec <= 0) {
-          state.cycleRemainingSec = 0;
-          state.cycleStatus = 'completed';
-          state.speedMultiplier = 1.0;
-          showToast(
-            state.lang === 'en'
-              ? '24h Mining Complete! Tap the orb to claim & restart.'
-              : 'Mining 24h irarangiye! Kanda ku mupira ufate ibihembo.',
-            '🎉'
-          );
-        }
-      }
-      updateUI();
-    }, 250);
-
-    window.addEventListener('DOMContentLoaded', () => {
-      try {
-        if (window.Telegram && window.Telegram.WebApp) {
-          const tg = window.Telegram.WebApp;
-          tg.ready();
-          tg.expand();
-          const user = tg.initDataUnsafe && tg.initDataUnsafe.user;
-          if (user) {
-            if (user.username) {
-              document.getElementById('header-username').textContent = `@${user.username}`;
-            }
-            if (user.first_name) {
-              document.getElementById('profile-display-name').textContent = user.first_name;
-            }
-            if (user.id) {
-              document.getElementById('profile-tg-id').textContent = `TG ID: ${user.id}`;
-            }
+        const tgId = tgUser && tgUser.id ? Number(tgUser.id) : state.tgId;
+        const username = tgUser && tgUser.username ? `@${tgUser.username}` : `@user_${tgId}`;
+        const firstName = tgUser && tgUser.first_name ? tgUser.first_name : 'Puppy Miner';
+
+        state.tgId = tgId;
+        state.username = username;
+        state.firstName = firstName;
+
+        let referrerId = null;
+        if (startParam && startParam.startsWith('ref_')) {
+          const parsedRef = Number(startParam.replace('ref_', '').trim());
+          if (parsedRef && parsedRef !== tgId) {
+            referrerId = parsedRef;
           }
         }
-      } catch (e) {}
 
-      renderStreak();
-      renderTasks();
-      renderTransactions();
-      renderLeaderboard();
-      updateUI();
-    });
-  </script>
-</body>
-</html>
+        let { data: existingUser } = await db
+          .from('users')
+          .select('*')
+          .eq('tg_id', tgId)
+          .maybeSingle();
+
+        if (!existingUser) {
+          const { data: insertedUser } = await db
+            .from('users')
+            .insert([{
+              tg_id: tgId,
+              username: username,
+              first_name: firstName,
+              balance: 0.00,
+              tap_power: 2,
+              base_passive_rate: 180,
+              max_speed_multiplier: 3.00,
+              cycle_status: 'ready',
+              session_mined: 0.00,
+              booster_base_lvl: 1,
+              booster_max_lvl: 1,
+              booster_tap_lvl: 1,
+              referred_by: referrerId
+            }])
+            .select()
+            .single();
+          existingUser = insertedUser;
+
+          if (referrerId) {
+            await db.rpc && Promise.resolve();
+            const { data: refOwner } = await db
+              .from('users')
+              .select('tg_id, unclaimed_ref_bonus, total_ref_earned')
+              .eq('tg_id', referrerId)
+              .maybeSingle();
+            if (refOwner) {
+              await db
+                .from('users')
+                .update({
+                  unclaimed_ref_bonus: Number(refOwner.unclaimed_ref_bonus || 0) + 1000,
+                  total_ref_earned: Number(refOwner.total_ref_earned || 0) + 1000,
+                  updated_at: new Date().toISOString()
+                })
+                .eq('tg_id', referrerId);
+            }
+          }
+        } else {
+          await db
+            .from('users')
+            .update({
+              username: username,
+              first_name: firstName,
+              updated_at: new Date().toISOString()
+            })
+            .eq('tg_id', tgId);
+        }
+
+        if (existingUser) {
+          state.balance = Number(existingUser.balance || 0);
+          state.tapPower = Number(existingUser.tap_power || 2);
+          state.basePassiveRate = Number(existingUser.base_passive_rate || 180);
+          state.maxSpeedMultiplier = Number(existingUser.max_speed_multiplier || 3.0);
+          state.cycleStatus = existingUser.cycle_status || 'ready';
+          state.cycleStartedAt = existingUser.cycle_started_at || null;
+          state.sessionMined = Number(existingUser.session_mined || 0);
+          state.dailyStreak = Number(existingUser.daily_streak
